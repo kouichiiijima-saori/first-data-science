@@ -44,8 +44,9 @@ MVPで推奨するtableは以下とする。
 
 設計上の推奨:
 
-- 80時間MVPでは CommonMarkまたはGitHub Flavored Markdown相当を候補とし、実装前にGemの互換性を確認して1つに絞る。
-- どのlibraryを選んでも、変換後HTMLは必ずsanitizeする。
+- 80時間MVPでは `commonmarker` を採用する。CommonMark/GFM系に強く、Ruby 3.4.10 / Rails 8.1.3 のWSL環境で `commonmarker 2.9.0 (x86_64-linux)` を導入できることを確認済み。
+- Markdown原文からHTMLへ変換し、変換後HTMLは必ずRails標準sanitizerでallowlist sanitizeする。
+- CommonMarkerのsyntax highlighter pluginは無効化し、code blockは `code.language-*` classのみ保持する。
 - syntax highlightingは候補であり、必須機能にしない。
 
 ## tags / article_tags方式とカンマ区切り文字列方式の比較
@@ -159,7 +160,10 @@ Validation案:
 - `title`: presence、最大100文字程度
 - `summary`: presence、最大200文字程度
 - `body`: presence、Markdown記号やHTMLではなく表示上のplain text相当で400文字以上
-- fenced code blockを文字数に含めるかはユーザー判断事項
+- fenced code block内のコード本文は文字数に含める
+- linkは表示文字列のみ文字数に含め、URL自体は原則含めない
+- 画像はalt textを文字数に含める
+- whitespaceを正規化して判定する
 - 課題適合のため、実運用では説明文だけでも400文字以上を目標とする
 - `status`: inclusion in `draft`, `published`
 - `thumbnail`: content type JPEG/PNG/WebP、容量5MB以下
@@ -377,8 +381,9 @@ Mermaidが表示されない場合の説明:
 - 任意 `style` 属性は原則許可しない。
 - 許可するclassを限定する。
 - linkの危険なschemeを拒否する。
-- image URLまたはActive Storage参照を安全に扱う。
-- raw HTMLを許可する場合も許可要素を限定する。
+- image URLまたはActive Storage参照を安全に扱う。MVPでは同一originのroot-relative pathのみ許可し、`data:` URI、外部画像URL、通常の相対pathは許可しない。
+- raw HTMLはCommonMarker側でunsafe出力を無効化し、sanitize allowlistでも許可要素を限定する。
+- `target="_blank"` を許可する場合は `rel="noopener noreferrer"` を保証する。
 - code block内は実行しない。
 - Python codeをサーバーで実行しない。
 

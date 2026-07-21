@@ -130,6 +130,7 @@ MVPで対応するMarkdown記法:
 - 見出し
 - 段落
 - 太字
+- 斜体
 - 箇条書き
 - 番号付きリスト
 - 引用
@@ -141,7 +142,15 @@ MVPで対応するMarkdown記法:
 - 画像
 - 水平線
 
-CommonMarkまたはGitHub Flavored Markdown相当を候補とする。Markdown libraryは設計段階では候補比較までとし、Gem追加は次Step以降で行う。
+Markdown libraryは `commonmarker` を採用する。CommonMark/GitHub Flavored Markdown相当をRails側でHTMLへ変換し、変換後HTMLはRails標準sanitizerによるallowlist方式で必ずsanitizeする。改行はCommonMark標準に合わせ、段落内の単独改行は `<br>` にしない。
+
+Sanitize方針:
+
+- 許可tagは見出し、段落、強調、リスト、リンク、引用、inline code、code block、table、horizontal rule、画像などMVP記法に必要なものに限定する
+- `script`、`iframe`、`object`、`embed`、`form` は許可しない
+- event handler属性、任意 `style` 属性、危険なURL schemeは許可しない
+- code blockの言語表示に必要な `code.language-*` classのみ保持する
+- 画像URLは同一originのroot-relative pathのみ許可し、`data:` URI、外部画像URL、`images/foo.png` のような相対pathは許可しない
 
 ### 6.6 Qiita風学習記事として扱う表示要素
 
@@ -329,7 +338,10 @@ Markdown標準では不足するためMVPで限定対応するもの:
 
 - 1記事400文字以上
 - Markdown記号やHTMLではなく、表示上のplain text相当を基準にする
-- fenced code blockを文字数に含めるかはユーザー判断事項とする
+- fenced code block内のコード本文は文字数に含める
+- linkは表示文字列を文字数に含め、URL自体は原則含めない
+- 画像はalt textを文字数に含める
+- whitespaceは正規化する
 - 課題の「記事本文400文字以上」に確実に適合するため、実運用では説明文だけでも400文字以上を目標とする
 
 記事候補:

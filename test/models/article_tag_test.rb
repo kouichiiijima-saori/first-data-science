@@ -2,7 +2,7 @@ require "test_helper"
 
 class ArticleTagTest < ActiveSupport::TestCase
   test "belongs to article and tag" do
-    article = Article.create!(title: "Title", body: "Body", summary: "Summary", status: "draft")
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
     tag = Tag.create!(name: "Ruby")
     article_tag = ArticleTag.create!(article: article, tag: tag)
 
@@ -11,7 +11,7 @@ class ArticleTagTest < ActiveSupport::TestCase
   end
 
   test "rejects duplicate article and tag pair" do
-    article = Article.create!(title: "Title", body: "Body", summary: "Summary", status: "draft")
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
     tag = Tag.create!(name: "Ruby")
     ArticleTag.create!(article: article, tag: tag)
 
@@ -22,7 +22,7 @@ class ArticleTagTest < ActiveSupport::TestCase
   end
 
   test "enforces duplicate article and tag pair at the database layer" do
-    article = Article.create!(title: "Title", body: "Body", summary: "Summary", status: "draft")
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
     tag = Tag.create!(name: "Ruby")
     ArticleTag.create!(article: article, tag: tag)
 
@@ -42,4 +42,9 @@ class ArticleTagTest < ActiveSupport::TestCase
       ])
     end
   end
+
+  private
+    def long_body
+      "本文" * 200
+    end
 end

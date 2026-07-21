@@ -200,8 +200,8 @@
 | Week | Week 2 |
 | 主担当 | Codex |
 | 目的 | Markdown本文を安全なHTMLへ変換して表示する |
-| 成果物 | Markdown library導入、変換処理、sanitize処理、plain text文字数判定 |
-| 完了条件 | 見出し、表、inline code、fenced code block、画像記法を安全に表示できる |
+| 成果物 | `commonmarker` 導入、MarkdownRenderer、MarkdownPlainTextExtractor、sanitize処理、plain text 400文字validation |
+| 完了条件 | 見出し、表、inline code、fenced code block、画像記法をsanitize済みHTMLへ変換でき、plain text相当400文字以上を判定できる |
 | 想定時間 | 5h |
 | 依存関係 | W1-04 |
 | リスク | raw HTMLや危険なlink schemeを許可してしまう |
