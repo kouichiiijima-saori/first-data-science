@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
     <title><%= content_for(:title) || "First Data Science" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -23,7 +23,29 @@
     <%= javascript_importmap_tags %>
   </head>
 
-  <body>
-    <%= yield %>
+  <body class="public-layout">
+    <header class="site-header">
+      <div class="site-header-container">
+        <div class="site-brand">
+          <%= link_to "First Data Science", root_path, class: "site-title" %>
+        </div>
+        <nav class="site-nav">
+          <%= link_to "記事一覧", articles_path %>
+        </nav>
+      </div>
+    </header>
+
+    <div class="site-main">
+      <%= yield %>
+    </div>
+
+    <footer class="site-footer">
+      <div class="site-footer-container">
+        <p>&copy; <%= Time.current.year %> First Data Science.</p>
+        <div class="footer-links">
+          <%= link_to "管理者ログイン", admin_login_path, class: "admin-login-link" %>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>
