@@ -90,7 +90,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_select "h1", "記事新規作成"
-    assert_select ".errors"
+    assert_select ".error-explanation"
     assert_includes response.body, "Python"
   end
 
@@ -132,7 +132,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_select "h1", "記事編集"
-    assert_select ".errors"
+    assert_select ".error-explanation"
     assert_includes response.body, "Draft"
   end
 

@@ -1,36 +1,49 @@
-<h1>記事管理</h1>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+  <h1>記事管理</h1>
+  <%= link_to "新規作成", new_admin_article_path, class: "btn btn-primary" %>
+</div>
 
-<% if flash[:notice].present? %>
-  <p class="notice"><%= flash[:notice] %></p>
+<% if @articles.empty? %>
+  <div class="empty-state">
+    <p>記事はまだありません。</p>
+    <%= link_to "最初の記事を作成する", new_admin_article_path, class: "btn btn-primary", style: "margin-top: 1rem;" %>
+  </div>
+<% else %>
+  <div class="table-responsive">
+    <table>
+      <thead>
+        <tr>
+          <th>タイトル</th>
+          <th>公開状態</th>
+          <th>タグ</th>
+          <th>更新日時</th>
+          <th style="width: 150px;">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @articles.each do |article| %>
+          <tr>
+            <td>
+              <strong><%= article.title %></strong>
+            </td>
+            <td>
+              <% if article.status == "published" %>
+                <span class="status-badge status-published">公開中</span>
+              <% else %>
+                <span class="status-badge status-draft">下書き</span>
+              <% end %>
+            </td>
+            <td><%= article.tags.map(&:name).join(", ") %></td>
+            <td><%= l(article.updated_at, format: :short) %></td>
+            <td>
+              <div class="actions">
+                <%= link_to "編集", edit_admin_article_path(article), class: "btn" %>
+                <%= button_to "削除", admin_article_path(article), method: :delete, class: "btn btn-danger", form: { data: { turbo_confirm: "本当に削除しますか？" }, onsubmit: "return confirm('本当に削除しますか？');" } %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 <% end %>
-
-<% if flash[:alert].present? %>
-  <p class="alert"><%= flash[:alert] %></p>
-<% end %>
-
-<p><%= link_to "新規作成", new_admin_article_path %></p>
-<p><%= link_to "管理画面", admin_root_path %></p>
-
-<table>
-  <thead>
-    <tr>
-      <th>タイトル</th>
-      <th>公開状態</th>
-      <th>タグ</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @articles.each do |article| %>
-      <tr>
-        <td><%= article.title %></td>
-        <td><%= article.status %></td>
-        <td><%= article.tags.map(&:name).join(", ") %></td>
-        <td>
-          <%= link_to "編集", edit_admin_article_path(article) %>
-          <%= button_to "削除", admin_article_path(article), method: :delete %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>

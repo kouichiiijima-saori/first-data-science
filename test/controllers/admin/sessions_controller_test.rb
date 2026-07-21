@@ -43,7 +43,7 @@ class Admin::SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_nil session[:admin_id]
-    assert_select ".alert", Admin::SessionsController::AUTHENTICATION_ERROR_MESSAGE
+    assert_select ".flash-alert", Admin::SessionsController::AUTHENTICATION_ERROR_MESSAGE
   end
 
   test "fails with wrong password using same generic message" do
@@ -51,7 +51,7 @@ class Admin::SessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_nil session[:admin_id]
-    assert_select ".alert", Admin::SessionsController::AUTHENTICATION_ERROR_MESSAGE
+    assert_select ".flash-alert", Admin::SessionsController::AUTHENTICATION_ERROR_MESSAGE
   end
 
   test "does not redisplay password after failed login" do

@@ -1,45 +1,54 @@
-<% if article.errors.any? %>
-  <div class="errors">
-    <ul>
-      <% article.errors.full_messages.each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-    </ul>
-  </div>
-<% end %>
-
 <%= form_with model: [:admin, article], local: true do |form| %>
-  <div>
+  <% if article.errors.any? %>
+    <div class="error-explanation">
+      <h2><%= article.errors.count %>件のエラーにより保存できませんでした：</h2>
+      <ul>
+        <% article.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
     <%= form.label :title, "タイトル" %>
     <%= form.text_field :title, required: true %>
   </div>
 
-  <div>
+  <div class="form-group">
     <%= form.label :summary, "概要" %>
-    <%= form.text_area :summary, required: true %>
+    <p class="form-help">記事一覧や検索結果に表示される簡単な説明文（100文字程度）</p>
+    <%= form.text_area :summary, required: true, rows: 3 %>
   </div>
 
-  <div>
-    <%= form.label :body, "本文" %>
-    <%= form.text_area :body, required: true %>
+  <div class="form-group">
+    <%= form.label :body, "本文 (Markdown)" %>
+    <p class="form-help">
+      <strong>Markdown記法が使えます：</strong> 見出しは <code># </code>、箇条書きは <code>- </code>、太字は <code>**太字**</code>、リンクは <code>[テキスト](URL)</code>。<br>
+      コードブロックは <code>```ruby</code> のように言語を指定します。
+    </p>
+    <%= form.text_area :body, required: true, class: "markdown-textarea" %>
   </div>
 
-  <div>
-    <%= form.label :status, "公開状態" %>
-    <%= form.select :status, Article::STATUSES.map { |status| [status, status] } %>
-  </div>
-
-  <div>
+  <div class="form-group">
     <%= form.label :tag_names, "タグ" %>
+    <p class="form-help">カンマ区切りで複数指定できます（例: Python, 機械学習, 統計）</p>
     <%= form.text_field :tag_names, value: tag_names %>
   </div>
 
-  <div>
-    <%= form.label :thumbnail, "サムネイル" %>
+  <div class="form-group">
+    <%= form.label :status, "公開状態" %>
+    <%= form.select :status, [["下書き (draft)", "draft"], ["公開中 (published)", "published"]] %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :thumbnail, "サムネイル画像" %>
+    <p class="form-help">記事一覧のカードなどに表示される画像です</p>
     <%= form.file_field :thumbnail %>
   </div>
 
-  <%= form.submit %>
+  <div style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center;">
+    <%= form.submit "保存する", class: "btn btn-primary" %>
+    <%= link_to "キャンセルして一覧へ戻る", admin_articles_path, class: "btn" %>
+  </div>
 <% end %>
-
-<p><%= link_to "記事管理へ戻る", admin_articles_path %></p>
