@@ -34,7 +34,7 @@ class TagTest < ActiveSupport::TestCase
 
   test "has many articles through article tags" do
     tag = Tag.create!(name: "Ruby")
-    article = Article.create!(title: "Title", body: "Body", summary: "Summary", status: "draft")
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
 
     tag.articles << article
 
@@ -44,11 +44,16 @@ class TagTest < ActiveSupport::TestCase
 
   test "destroys article tags when tag is destroyed" do
     tag = Tag.create!(name: "Ruby")
-    article = Article.create!(title: "Title", body: "Body", summary: "Summary", status: "draft")
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
     article_tag = ArticleTag.create!(article: article, tag: tag)
 
     tag.destroy!
 
     assert_not ArticleTag.exists?(article_tag.id)
   end
+
+  private
+    def long_body
+      "本文" * 200
+    end
 end

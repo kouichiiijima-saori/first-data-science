@@ -6,7 +6,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     @article = Article.create!(
       title: "Existing Article",
       summary: "Existing summary",
-      body: "Existing body",
+      body: long_body,
       status: "draft"
     )
   end
@@ -55,7 +55,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
         article: {
           title: "New Article",
           summary: "New summary",
-          body: "New body",
+          body: long_body,
           status: "published",
           tag_names: "Python, Statistics, Python",
           created_at: 1.year.ago
@@ -67,7 +67,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_articles_path
     assert_equal "New Article", article.title
     assert_equal "New summary", article.summary
-    assert_equal "New body", article.body
+    assert_equal long_body, article.body
     assert_equal "published", article.status
     assert_equal %w[Python Statistics], article.tags.order(:name).pluck(:name)
     assert_operator article.created_at, :>, 1.minute.ago
@@ -102,7 +102,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
       article: {
         title: "Updated Article",
         summary: "Updated summary",
-        body: "Updated body",
+        body: long_body,
         status: "published",
         tag_names: "Machine Learning, Data"
       }
@@ -112,7 +112,7 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to admin_articles_path
     assert_equal "Updated Article", @article.title
     assert_equal "Updated summary", @article.summary
-    assert_equal "Updated body", @article.body
+    assert_equal long_body, @article.body
     assert_equal "published", @article.status
     assert_equal [ "Data", "Machine Learning" ], @article.tags.order(:name).pluck(:name)
   end
@@ -147,6 +147,10 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+    def long_body
+      "本文" * 200
+    end
+
     def login_as_admin
       post admin_login_path, params: { email: @admin.email, password: "password123" }
     end
