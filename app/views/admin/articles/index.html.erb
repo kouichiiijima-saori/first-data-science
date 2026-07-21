@@ -1,0 +1,36 @@
+<h1>記事管理</h1>
+
+<% if flash[:notice].present? %>
+  <p class="notice"><%= flash[:notice] %></p>
+<% end %>
+
+<% if flash[:alert].present? %>
+  <p class="alert"><%= flash[:alert] %></p>
+<% end %>
+
+<p><%= link_to "新規作成", new_admin_article_path %></p>
+<p><%= link_to "管理画面", admin_root_path %></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>タイトル</th>
+      <th>公開状態</th>
+      <th>タグ</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @articles.each do |article| %>
+      <tr>
+        <td><%= article.title %></td>
+        <td><%= article.status %></td>
+        <td><%= article.tags.map(&:name).join(", ") %></td>
+        <td>
+          <%= link_to "編集", edit_admin_article_path(article) %>
+          <%= button_to "削除", admin_article_path(article), method: :delete %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

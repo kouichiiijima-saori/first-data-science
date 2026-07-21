@@ -2,4 +2,6 @@
 
 <p>ログイン中: <%= current_admin.email %></p>
 
+<p><%= link_to "記事管理", admin_articles_path %></p>
+
 <%= button_to "ログアウト", admin_logout_path, method: :delete %>

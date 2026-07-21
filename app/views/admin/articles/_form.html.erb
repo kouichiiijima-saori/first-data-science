@@ -1,0 +1,45 @@
+<% if article.errors.any? %>
+  <div class="errors">
+    <ul>
+      <% article.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: [:admin, article], local: true do |form| %>
+  <div>
+    <%= form.label :title, "タイトル" %>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :summary, "概要" %>
+    <%= form.text_area :summary, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :body, "本文" %>
+    <%= form.text_area :body, required: true %>
+  </div>
+
+  <div>
+    <%= form.label :status, "公開状態" %>
+    <%= form.select :status, Article::STATUSES.map { |status| [status, status] } %>
+  </div>
+
+  <div>
+    <%= form.label :tag_names, "タグ" %>
+    <%= form.text_field :tag_names, value: tag_names %>
+  </div>
+
+  <div>
+    <%= form.label :thumbnail, "サムネイル" %>
+    <%= form.file_field :thumbnail %>
+  </div>
+
+  <%= form.submit %>
+<% end %>
+
+<p><%= link_to "記事管理へ戻る", admin_articles_path %></p>
