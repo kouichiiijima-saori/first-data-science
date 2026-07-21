@@ -1,0 +1,29 @@
+<% content_for :title, "#{@article.title} - First Data Science" %>
+
+<main class="public-article-show">
+  <article class="article-detail">
+    <header class="article-detail-header">
+      <p><%= link_to "記事一覧へ戻る", articles_path %></p>
+      <h1><%= @article.title %></h1>
+      <p class="article-summary"><%= @article.summary %></p>
+
+      <% if @article.tags.any? %>
+        <ul class="article-tags">
+          <% @article.tags.each do |tag| %>
+            <li><%= tag.name %></li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <% if @article.thumbnail.attached? %>
+        <div class="article-detail-thumbnail">
+          <%= image_tag @article.thumbnail, alt: @article.title %>
+        </div>
+      <% end %>
+    </header>
+
+    <div class="markdown-body">
+      <%= @rendered_body_html %>
+    </div>
+  </article>
+</main>

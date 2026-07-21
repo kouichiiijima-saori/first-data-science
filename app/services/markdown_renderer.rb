@@ -51,7 +51,7 @@ class MarkdownRenderer
       normalize_links(fragment)
       normalize_images(fragment)
 
-      fragment.to_html
+      fragment.to_html.html_safe
     end
 
     def normalize_classes(fragment)

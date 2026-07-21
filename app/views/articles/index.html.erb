@@ -1,0 +1,39 @@
+<% content_for :title, "記事一覧 - First Data Science" %>
+
+<main class="public-articles-index">
+  <header class="public-page-header">
+    <h1>記事一覧</h1>
+    <p>公開中のデータサイエンス入門記事を掲載しています。</p>
+  </header>
+
+  <% if @articles.any? %>
+    <div class="article-list">
+      <% @articles.each do |article| %>
+        <article class="article-card">
+          <% if article.thumbnail.attached? %>
+            <div class="article-card-thumbnail">
+              <%= image_tag article.thumbnail, alt: article.title %>
+            </div>
+          <% end %>
+
+          <div class="article-card-body">
+            <h2><%= link_to article.title, article_path(article) %></h2>
+            <p><%= article.summary %></p>
+
+            <% if article.tags.any? %>
+              <ul class="article-tags">
+                <% article.tags.each do |tag| %>
+                  <li><%= tag.name %></li>
+                <% end %>
+              </ul>
+            <% end %>
+
+            <%= link_to "続きを読む", article_path(article), class: "article-link" %>
+          </div>
+        </article>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty-articles">公開中の記事はありません。</p>
+  <% end %>
+</main>

@@ -174,7 +174,7 @@ Rails実装時は以下のURL構成を推奨する。
 
 | 用途 | HTTPメソッド | URL | 備考 |
 | --- | --- | --- | --- |
-| トップ | GET | `/` | `home#index` など |
+| トップ | GET | `/` | 公開記事一覧・詳細Backend実装時点では `articles#index`。トップ専用画面は後続Task |
 | 一般記事一覧 | GET | `/articles` | `published` のみ |
 | 一般記事詳細 | GET | `/articles/:id` | `published` のみ |
 | 管理者ログインフォーム | GET | `/admin/login` | 認証不要 |

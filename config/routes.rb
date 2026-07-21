@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  root "articles#index"
+  resources :articles, only: %i[index show]
+
   namespace :admin do
     root "dashboard#index"
     get "login", to: "sessions#new"
