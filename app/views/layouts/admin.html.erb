@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <title><%= content_for(:title) || "First Data Science 管理画面" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="First Data Science Admin">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag "admin", "data-turbo-track": "reload" %>
+  </head>
+
+  <body>
+    <div class="admin-layout">
+      <% if respond_to?(:admin_logged_in?) && admin_logged_in? %>
+        <header class="admin-header">
+          <div class="admin-header-title">
+            <%= link_to "管理画面トップ", admin_root_path, style: "color: inherit; text-decoration: none;" %>
+          </div>
+          <nav class="admin-header-nav">
+            <span style="color: var(--text-muted); font-size: 0.875rem;"><%= current_admin.email %></span>
+            <%= link_to "記事管理", admin_articles_path, class: "btn" %>
+            <%= button_to "ログアウト", admin_logout_path, method: :delete, class: "btn" %>
+          </nav>
+        </header>
+      <% end %>
+
+      <main class="admin-main">
+        <div class="flash-messages">
+          <% if flash[:notice].present? %>
+            <div class="flash-notice" role="alert"><%= flash[:notice] %></div>
+          <% end %>
+          
+          <% if flash[:alert].present? %>
+            <div class="flash-alert" role="alert"><%= flash[:alert] %></div>
+          <% end %>
+        </div>
+
+        <%= yield %>
+      </main>
+    </div>
+  </body>
+</html>

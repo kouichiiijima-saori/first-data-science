@@ -1,4 +1,5 @@
 class Admin::BaseController < ApplicationController
+  layout "admin"
   before_action :require_admin
 
   helper_method :current_admin, :admin_logged_in?

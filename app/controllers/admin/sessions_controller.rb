@@ -1,4 +1,5 @@
 class Admin::SessionsController < ApplicationController
+  layout "admin"
   AUTHENTICATION_ERROR_MESSAGE = "ログイン情報が正しくありません".freeze
 
   before_action :redirect_if_logged_in, only: %i[new create]
