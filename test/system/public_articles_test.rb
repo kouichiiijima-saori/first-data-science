@@ -28,4 +28,11 @@ class PublicArticlesTest < ApplicationSystemTestCase
     assert_selector "h1", text: @published_article.title
     assert_text @published_article.summary
   end
+
+  test "showing a draft article returns 404" do
+    visit article_url(@draft_article)
+
+    assert_no_text @draft_article.title
+    assert_no_text @draft_article.summary
+  end
 end
