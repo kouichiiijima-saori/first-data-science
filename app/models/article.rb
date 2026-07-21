@@ -6,6 +6,8 @@ class Article < ApplicationRecord
   has_many :tags, through: :article_tags
   has_one_attached :thumbnail
 
+  scope :published, -> { where(status: "published") }
+
   validates :title, presence: true
   validates :body, presence: true
   validates :summary, presence: true
