@@ -21,13 +21,28 @@
     <%= form.text_area :summary, required: true, rows: 3 %>
   </div>
 
-  <div class="form-group">
-    <%= form.label :body, "本文 (Markdown)" %>
+  <div class="form-group" data-controller="markdown-preview" data-markdown-preview-url-value="<%= admin_markdown_preview_path %>">
+    <div class="markdown-preview-header">
+      <%= form.label :body, "本文 (Markdown)", class: "markdown-preview-label" %>
+      <button type="button" class="btn btn-secondary markdown-preview-button" data-markdown-preview-target="button" data-action="click->markdown-preview#preview">プレビューを実行する</button>
+    </div>
     <p class="form-help">
       <strong>Markdown記法が使えます：</strong> 見出しは <code># </code>、箇条書きは <code>- </code>、太字は <code>**太字**</code>、リンクは <code>[テキスト](URL)</code>。<br>
       コードブロックは <code>```ruby</code> のように言語を指定します。
     </p>
-    <%= form.text_area :body, required: true, class: "markdown-textarea" %>
+
+    <div class="markdown-editor-layout">
+      <%= form.text_area :body, required: true, class: "markdown-textarea", data: { markdown_preview_target: "source" } %>
+
+      <div class="preview-area">
+        <h3 class="preview-area-title">プレビュー結果</h3>
+        <div data-markdown-preview-target="preview">
+          <div class="preview-empty">
+            まだプレビューされていません。「プレビューを実行する」ボタンを押すとここに表示されます。
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="form-group">

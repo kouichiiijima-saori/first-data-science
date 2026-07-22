@@ -316,3 +316,79 @@ tr:last-child td {
     align-items: flex-start;
   }
 }
+
+/* Markdown Preview UI */
+.markdown-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-preview-label {
+  margin-bottom: 0;
+}
+
+.markdown-preview-button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+  background: var(--bg-light, #e5e7eb);
+  color: var(--text-color, #111827);
+  border: 1px solid var(--border-color, #d1d5db);
+}
+
+.markdown-editor-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.preview-area {
+  border-top: 2px dashed var(--border-color, #e5e7eb);
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+}
+
+.preview-area-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: var(--text-color, #374151);
+}
+
+.preview-empty {
+  padding: 1.5rem;
+  color: var(--text-muted, #6b7280);
+  background: var(--bg-light, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.preview-loading {
+  padding: 1.5rem;
+  color: var(--text-muted, #6b7280);
+  background: var(--bg-light, #f9fafb);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.preview-error {
+  padding: 1.5rem;
+  color: var(--danger-color, #dc2626);
+  background: var(--error-bg, #fee2e2);
+  border: 1px solid #f87171;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.markdown-preview-content {
+  padding: 1.5rem;
+  background: var(--surface-color, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 4px;
+  overflow-x: auto;
+}
