@@ -17,6 +17,10 @@ class Admin::RoutesTest < ActionDispatch::IntegrationTest
     assert_routing({ method: "delete", path: "/admin/articles/1" }, { controller: "admin/articles", action: "destroy", id: "1" })
   end
 
+  test "routes admin markdown preview endpoint" do
+    assert_routing({ method: "post", path: "/admin/markdown_preview" }, { controller: "admin/markdown_previews", action: "create" })
+  end
+
   test "does not expose unnecessary restful session routes" do
     assert_raises(ActionController::RoutingError) do
       Rails.application.routes.recognize_path("/admin/sessions", method: :get)

@@ -112,7 +112,7 @@ flowchart TD
 
 説明:
 
-- PreviewはRails側のMarkdown変換処理を共通利用するbutton式を推奨する。
+- PreviewはRails側のMarkdown変換処理を共通利用するbutton式を推奨する。Backendは `POST /admin/markdown_preview` でMarkdown本文を受け取り、保存せずJSONでsanitize済みHTMLを返す。
 - real-time previewは80時間MVPでは簡略化可能とする。
 - JavaScriptを使う場合も補助的なUIに限定し、Markdown変換の正本処理はRails側に置く。
 
@@ -187,7 +187,7 @@ Rails実装時は以下のURL構成を推奨する。
 | 管理記事編集 | GET | `/admin/articles/:id/edit` | 認証必要 |
 | 管理記事更新 | PATCH/PUT | `/admin/articles/:id` | 認証必要 |
 | 管理記事削除 | DELETE | `/admin/articles/:id` | 認証必要 |
-| Markdown preview | POST | `/admin/markdown_preview` など | 認証必要。実装時に最終決定 |
+| Markdown preview | POST | `/admin/markdown_preview` | 認証必要。保存せず `{ html: "..." }` JSONでsanitize済みHTMLを返す |
 | 本文画像upload補助 | POST | `/admin/article_images` など | 認証必要。実装時に最終決定 |
 
 ## 設計上の検討事項と推奨

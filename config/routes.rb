@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     get "login", to: "sessions#new"
     post "login", to: "sessions#create"
     delete "logout", to: "sessions#destroy"
+    post "markdown_preview", to: "markdown_previews#create"
     resources :articles, except: :show
   end
 

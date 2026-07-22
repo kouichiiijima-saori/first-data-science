@@ -260,8 +260,8 @@
 | Week | Week 3 |
 | 主担当 | Codex / Antigravity |
 | 目的 | 保存前にMarkdown変換結果を確認できるようにする |
-| 成果物 | Preview button、Rails側preview endpoint、sanitize後preview表示 |
-| 完了条件 | 管理者がMarkdown本文のpreviewを確認できる |
+| 成果物 | Rails側preview endpoint、sanitize済みHTML JSON response、Preview button/UI接続 |
+| 完了条件 | Backend endpointは認証済み管理者だけ利用でき、保存せずsanitize済みHTMLを返す。Preview UI接続は後続Task |
 | 想定時間 | 4h |
 | 依存関係 | W2-03 |
 | リスク | real-time previewまで広げると時間超過する |
