@@ -146,9 +146,15 @@ a:hover {
 
 @media (min-width: 600px) {
   .article-card-thumbnail {
-    width: 240px;
+    width: 280px;
+    flex: 0 0 280px;
+    aspect-ratio: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-bottom: none;
     border-right: 1px solid var(--border-color);
+    padding: 1rem 0;
   }
 }
 
@@ -157,6 +163,15 @@ a:hover {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+@media (min-width: 600px) {
+  .article-card-thumbnail img {
+    width: 240px;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 4px;
+  }
 }
 
 .article-card-body {
