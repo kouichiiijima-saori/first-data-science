@@ -270,7 +270,7 @@
   - 実行結果入力例
   - タグ入力欄
   - 公開状態入力欄
-  - thumbnail upload
+  - thumbnail upload（JPEG・PNG・WebP、5MB以下。SVG、GIF、PDF、HTML等は非対応）
   - 本文画像upload補助
   - Preview buttonまたはpreview領域
   - sanitize後のpreview表示
@@ -294,7 +294,7 @@
   - Markdown変換エラー
   - sanitize後previewの表示エラー
   - タグ形式不正
-  - 画像形式・容量不正
+  - 画像形式・容量不正（thumbnailはJPEG・PNG・WebP、5MB以下のみ許可）
 - レスポンシブ上の注意:
   - 本文編集はPC利用を主想定にする。
   - textarea、preview、画像upload欄が横にはみ出さないようにする。
@@ -322,7 +322,7 @@
   - 実行結果入力例
   - タグ入力欄
   - 公開状態入力欄
-  - thumbnail upload
+  - thumbnail upload（JPEG・PNG・WebP、5MB以下。SVG、GIF、PDF、HTML等は非対応）
   - 本文画像upload補助
   - Preview buttonまたはpreview領域
   - sanitize後のpreview表示
@@ -349,7 +349,7 @@
   - Markdown変換エラー
   - sanitize後previewの表示エラー
   - タグ形式不正
-  - 画像形式・容量不正
+  - 画像形式・容量不正（thumbnailはJPEG・PNG・WebP、5MB以下のみ許可）
   - 更新失敗
   - 削除失敗
 - レスポンシブ上の注意:

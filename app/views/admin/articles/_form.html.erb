@@ -58,8 +58,8 @@
 
   <div class="form-group">
     <%= form.label :thumbnail, "サムネイル画像" %>
-    <p class="form-help">記事一覧のカードなどに表示される画像です</p>
-    <%= form.file_field :thumbnail %>
+    <p class="form-help">記事一覧のカードなどに表示される画像です。JPEG・PNG・WebP、5MB以下のファイルを選択してください。</p>
+    <%= form.file_field :thumbnail, accept: Article::THUMBNAIL_ALLOWED_CONTENT_TYPES.join(",") %>
   </div>
 
   <div style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center;">

@@ -1,4 +1,17 @@
 ja:
+  activerecord:
+    attributes:
+      article:
+        thumbnail: "サムネイル画像"
+    errors:
+      models:
+        article:
+          attributes:
+            thumbnail:
+              format: "%{attribute}%{message}"
+              invalid_content_type: "はJPEG、PNG、WebP形式のみアップロードできます"
+              invalid_extension: "の拡張子が正しくありません"
+              file_too_large: "のファイルサイズは5MB以下にしてください"
   time:
     formats:
       admin_datetime: "%Y/%m/%d %H:%M"

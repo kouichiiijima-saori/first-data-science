@@ -49,12 +49,130 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not ArticleTag.exists?(article_tag.id)
   end
 
-  test "can attach thumbnail through active storage" do
-    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
+  test "allows article without thumbnail" do
+    article = build_article
 
-    article.thumbnail.attach(io: StringIO.new("image"), filename: "thumbnail.png", content_type: "image/png")
+    assert article.valid?
+  end
 
-    assert article.thumbnail.attached?
+  test "allows jpeg thumbnail" do
+    article = build_article
+    attach_fixture_thumbnail(article, filename: "sample.jpg", content_type: "image/jpeg")
+
+    assert article.valid?
+  end
+
+  test "allows png thumbnail" do
+    article = build_article
+    attach_fixture_thumbnail(article, filename: "sample.png", content_type: "image/png")
+
+    assert article.valid?
+  end
+
+  test "allows webp thumbnail" do
+    article = build_article
+    attach_fixture_thumbnail(article, filename: "sample.webp", content_type: "image/webp")
+
+    assert article.valid?
+  end
+
+  test "allows uppercase thumbnail extension" do
+    article = build_article
+    attach_fixture_thumbnail(article, filename: "PHOTO.JPG", content_type: "image/jpeg")
+
+    assert article.valid?
+  end
+
+  test "rejects svg thumbnail" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.svg", content_type: "image/svg+xml")
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_content_type_error
+    assert_includes article.errors[:thumbnail], thumbnail_extension_error
+  end
+
+  test "rejects html thumbnail" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.html", content_type: "text/html")
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_content_type_error
+    assert_includes article.errors[:thumbnail], thumbnail_extension_error
+  end
+
+  test "rejects pdf thumbnail" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.pdf", content_type: "application/pdf")
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_content_type_error
+    assert_includes article.errors[:thumbnail], thumbnail_extension_error
+  end
+
+  test "rejects gif thumbnail" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.gif", content_type: "image/gif")
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_content_type_error
+    assert_includes article.errors[:thumbnail], thumbnail_extension_error
+  end
+
+  test "rejects allowed mime type with invalid extension" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.txt", content_type: "image/png")
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_extension_error
+  end
+
+  test "rejects invalid mime type with allowed extension" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.png", content_type: "text/html")
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_content_type_error
+  end
+
+  test "allows thumbnail smaller than 5 megabytes" do
+    article = build_article
+    attach_sized_thumbnail(article, byte_size: Article::THUMBNAIL_MAX_BYTE_SIZE - 1)
+
+    assert article.valid?
+  end
+
+  test "allows thumbnail exactly 5 megabytes" do
+    article = build_article
+    attach_sized_thumbnail(article, byte_size: Article::THUMBNAIL_MAX_BYTE_SIZE)
+
+    assert article.valid?
+  end
+
+  test "rejects thumbnail larger than 5 megabytes" do
+    article = build_article
+    attach_sized_thumbnail(article, byte_size: Article::THUMBNAIL_MAX_BYTE_SIZE + 1)
+
+    assert_not article.valid?
+    assert_includes article.errors[:thumbnail], thumbnail_size_error
+  end
+
+  test "uses japanese thumbnail validation messages" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.svg", content_type: "image/svg+xml")
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "サムネイル画像はJPEG、PNG、WebP形式のみアップロードできます"
+    assert_includes article.errors.full_messages, "サムネイル画像の拡張子が正しくありません"
+  end
+
+  test "does not save article when thumbnail validation fails" do
+    article = build_article
+    attach_string_thumbnail(article, filename: "bad.html", content_type: "text/html")
+
+    assert_no_difference -> { Article.count } do
+      assert_not article.save
+    end
   end
 
   test "allows body with at least 400 plain text characters" do
@@ -100,11 +218,49 @@ class ArticleTest < ActiveSupport::TestCase
       }.merge(attributes))
     end
 
+    def attach_fixture_thumbnail(article, filename:, content_type:)
+      article.thumbnail.attach(
+        io: File.open(Rails.root.join("test/fixtures/files", filename.downcase.sub("photo", "sample"))),
+        filename: filename,
+        content_type: content_type
+      )
+    end
+
+    def attach_string_thumbnail(article, filename:, content_type:, content: "thumbnail")
+      article.thumbnail.attach(
+        io: StringIO.new(content),
+        filename: filename,
+        content_type: content_type,
+        identify: false
+      )
+    end
+
+    def attach_sized_thumbnail(article, byte_size:)
+      attach_string_thumbnail(
+        article,
+        filename: "large.jpg",
+        content_type: "image/jpeg",
+        content: "a" * byte_size
+      )
+    end
+
     def long_body
       "本文" * 200
     end
 
     def plain_text_length_error
       "must be at least #{Article::MINIMUM_BODY_PLAIN_TEXT_LENGTH} plain text characters"
+    end
+
+    def thumbnail_content_type_error
+      I18n.t("activerecord.errors.models.article.attributes.thumbnail.invalid_content_type")
+    end
+
+    def thumbnail_extension_error
+      I18n.t("activerecord.errors.models.article.attributes.thumbnail.invalid_extension")
+    end
+
+    def thumbnail_size_error
+      I18n.t("activerecord.errors.models.article.attributes.thumbnail.file_too_large")
     end
 end

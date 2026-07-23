@@ -37,6 +37,7 @@ module FirstDataScience
     config.active_record.default_timezone = :utc
     config.i18n.default_locale = :ja
     config.i18n.fallbacks = [ :en ]
+    config.active_model.i18n_customize_full_message = true
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

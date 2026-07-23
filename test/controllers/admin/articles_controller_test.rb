@@ -1,4 +1,5 @@
 require "test_helper"
+require "tempfile"
 
 class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
   setup do
@@ -55,7 +56,8 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select "textarea[name='article[body]']"
     assert_select "select[name='article[status]']"
     assert_select "input[name='article[tag_names]']"
-    assert_select "input[name='article[thumbnail]']"
+    assert_select "input[name='article[thumbnail]'][accept=?]", "image/jpeg,image/png,image/webp"
+    assert_includes response.body, "JPEG・PNG・WebP、5MB以下"
   end
 
   test "creates article with permitted attributes and comma separated tags" do
@@ -82,6 +84,54 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "published", article.status
     assert_equal %w[Python Statistics], article.tags.order(:name).pluck(:name)
     assert_operator article.created_at, :>, 1.minute.ago
+  end
+
+  test "creates article with valid thumbnail" do
+    login_as_admin
+
+    assert_difference -> { Article.count }, 1 do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(thumbnail: uploaded_fixture("sample.png", "image/png"))
+      }
+    end
+
+    article = Article.order(:created_at).last
+    assert_redirected_to admin_articles_path
+    assert article.thumbnail.attached?
+    assert_equal "image/png", article.thumbnail.blob.content_type
+  end
+
+  test "does not create article with invalid thumbnail format" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(
+          tag_names: "Python",
+          thumbnail: uploaded_fixture("sample.html", "text/html")
+        )
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /サムネイル画像はJPEG、PNG、WebP形式のみアップロードできます/
+    assert_includes response.body, "Python"
+    assert_includes response.body, "New Article"
+  end
+
+  test "does not create article with oversized thumbnail" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      with_large_upload do |upload|
+        post admin_articles_path, params: {
+          article: valid_article_params.merge(thumbnail: upload)
+        }
+      end
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /サムネイル画像のファイルサイズは5MB以下にしてください/
   end
 
   test "rerenders new with validation errors" do
@@ -128,6 +178,53 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal [ "Data", "Machine Learning" ], @article.tags.order(:name).pluck(:name)
   end
 
+  test "does not update article with invalid thumbnail" do
+    login_as_admin
+    attach_existing_thumbnail
+    original_attributes = @article.attributes.slice("title", "summary", "body", "status")
+    original_blob_id = @article.thumbnail.blob.id
+
+    patch admin_article_path(@article), params: {
+      article: {
+        title: "Rejected Update",
+        summary: "Rejected summary",
+        body: long_body,
+        status: "published",
+        tag_names: "Rejected",
+        thumbnail: uploaded_fixture("sample.html", "text/html")
+      }
+    }
+
+    @article.reload
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /サムネイル画像はJPEG、PNG、WebP形式のみアップロードできます/
+    assert_equal original_attributes, @article.attributes.slice("title", "summary", "body", "status")
+    assert_equal original_blob_id, @article.thumbnail.blob.id
+    assert_empty @article.tags
+  end
+
+  test "updates article without changing existing thumbnail when no new thumbnail is selected" do
+    login_as_admin
+    attach_existing_thumbnail
+    original_blob_id = @article.thumbnail.blob.id
+
+    patch admin_article_path(@article), params: {
+      article: {
+        title: "Updated Article",
+        summary: "Updated summary",
+        body: long_body,
+        status: "published",
+        tag_names: "Machine Learning"
+      }
+    }
+
+    @article.reload
+    assert_redirected_to admin_articles_path
+    assert_equal "Updated Article", @article.title
+    assert_equal original_blob_id, @article.thumbnail.blob.id
+    assert_equal [ "Machine Learning" ], @article.tags.pluck(:name)
+  end
+
   test "rerenders edit with validation errors" do
     login_as_admin
 
@@ -158,6 +255,44 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+    def valid_article_params
+      {
+        title: "New Article",
+        summary: "New summary",
+        body: long_body,
+        status: "published",
+        tag_names: "Python"
+      }
+    end
+
+    def uploaded_fixture(filename, content_type)
+      Rack::Test::UploadedFile.new(Rails.root.join("test/fixtures/files", filename), content_type)
+    end
+
+    def with_large_upload
+      Tempfile.create([ "large-thumbnail", ".jpg" ], binmode: true) do |file|
+        jpeg = File.binread(Rails.root.join("test/fixtures/files/sample.jpg"))
+        file.write(jpeg)
+        file.write("a" * (Article::THUMBNAIL_MAX_BYTE_SIZE + 1 - jpeg.bytesize))
+        file.rewind
+
+        yield Rack::Test::UploadedFile.new(
+          file.path,
+          "image/jpeg",
+          true,
+          original_filename: "large-thumbnail.jpg"
+        )
+      end
+    end
+
+    def attach_existing_thumbnail
+      @article.thumbnail.attach(
+        io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+        filename: "sample.png",
+        content_type: "image/png"
+      )
+    end
+
     def long_body
       "本文" * 200
     end
