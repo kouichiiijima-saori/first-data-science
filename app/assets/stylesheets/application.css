@@ -132,6 +132,7 @@ a:hover {
 @media (min-width: 600px) {
   .article-card {
     flex-direction: row;
+    align-items: center;
   }
 }
 
@@ -146,7 +147,6 @@ a:hover {
 @media (min-width: 600px) {
   .article-card-thumbnail {
     width: 240px;
-    align-self: flex-start;
     border-bottom: none;
     border-right: 1px solid var(--border-color);
   }
