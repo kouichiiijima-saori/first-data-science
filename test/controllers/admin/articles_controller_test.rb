@@ -32,6 +32,17 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_includes response.body, @article.title
   end
 
+  test "formats updated time for japanese administrators" do
+    @article.update_columns(updated_at: Time.utc(2026, 7, 22, 2, 1, 0))
+    login_as_admin
+
+    get admin_articles_path
+
+    assert_response :success
+    assert_includes response.body, "2026/07/22 11:01"
+    assert_no_match(/Jul/, response.body)
+  end
+
   test "renders new form for authenticated admin" do
     login_as_admin
 

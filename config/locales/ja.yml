@@ -1,0 +1,4 @@
+ja:
+  time:
+    formats:
+      admin_datetime: "%Y/%m/%d %H:%M"
