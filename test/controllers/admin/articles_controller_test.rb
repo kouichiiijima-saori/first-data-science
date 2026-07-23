@@ -134,6 +134,103 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".error-explanation", /サムネイル画像のファイルサイズは5MB以下にしてください/
   end
 
+  test "creates article with ten tags" do
+    login_as_admin
+
+    assert_difference -> { Article.count }, 1 do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(tag_names: tag_names(10).join(", "))
+      }
+    end
+
+    article = Article.order(:created_at).last
+    assert_redirected_to admin_articles_path
+    assert_equal tag_names(10), article.tags.order(:name).pluck(:name)
+  end
+
+  test "does not create article with eleven unique tags" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      assert_no_difference -> { Tag.count } do
+        assert_no_difference -> { ArticleTag.count } do
+          post admin_articles_path, params: {
+            article: valid_article_params.merge(tag_names: tag_names(11).join(", "))
+          }
+        end
+      end
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /タグは10件以内で入力してください/
+  end
+
+  test "creates article when duplicate tag inputs normalize to ten or fewer tags" do
+    login_as_admin
+    raw_tags = (tag_names(10) + [ "Tag01" ]).join(", ")
+
+    assert_difference -> { Article.count }, 1 do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(tag_names: raw_tags)
+      }
+    end
+
+    article = Article.order(:created_at).last
+    assert_redirected_to admin_articles_path
+    assert_equal tag_names(10), article.tags.order(:name).pluck(:name)
+  end
+
+  test "does not count empty tag inputs and supports mixed commas" do
+    login_as_admin
+    raw_tags = "Tag01,, Tag02， ，Tag03,"
+
+    assert_difference -> { Article.count }, 1 do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(tag_names: raw_tags)
+      }
+    end
+
+    article = Article.order(:created_at).last
+    assert_redirected_to admin_articles_path
+    assert_equal %w[Tag01 Tag02 Tag03], article.tags.order(:name).pluck(:name)
+  end
+
+  test "does not create article with tag name longer than fifty characters" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      assert_no_difference -> { Tag.count } do
+        assert_no_difference -> { ArticleTag.count } do
+          post admin_articles_path, params: {
+            article: valid_article_params.merge(tag_names: "Python, #{'あ' * (Tag::NAME_MAX_LENGTH + 1)}")
+          }
+        end
+      end
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /タグ名は50文字以内で入力してください/
+  end
+
+  test "does not create article when title summary or body exceeds maximum length" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(
+          title: "あ" * (Article::TITLE_MAX_LENGTH + 1),
+          summary: "あ" * (Article::SUMMARY_MAX_LENGTH + 1),
+          body: "あ" * (Article::BODY_MAX_LENGTH + 1)
+        )
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /タイトルは120文字以内で入力してください/
+    assert_select ".error-explanation", /概要は500文字以内で入力してください/
+    assert_select ".error-explanation", /本文は15,000文字以内で入力してください/
+  end
+
   test "rerenders new with validation errors" do
     login_as_admin
 
@@ -176,6 +273,33 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal long_body, @article.body
     assert_equal "published", @article.status
     assert_equal [ "Data", "Machine Learning" ], @article.tags.order(:name).pluck(:name)
+  end
+
+  test "does not update article with too many tags and keeps existing attributes and tags" do
+    login_as_admin
+    @article.tags << Tag.create!(name: "Existing")
+    original_attributes = @article.attributes.slice("title", "summary", "body", "status")
+    original_tag_names = @article.tags.order(:name).pluck(:name)
+
+    assert_no_difference -> { Tag.count } do
+      assert_no_difference -> { ArticleTag.count } do
+        patch admin_article_path(@article), params: {
+          article: {
+            title: "Rejected Update",
+            summary: "Rejected summary",
+            body: long_body,
+            status: "published",
+            tag_names: tag_names(11).join(", ")
+          }
+        }
+      end
+    end
+
+    @article.reload
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /タグは10件以内で入力してください/
+    assert_equal original_attributes, @article.attributes.slice("title", "summary", "body", "status")
+    assert_equal original_tag_names, @article.tags.order(:name).pluck(:name)
   end
 
   test "does not update article with invalid thumbnail" do
@@ -255,6 +379,10 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+    def tag_names(count)
+      Array.new(count) { |index| "Tag%02d" % (index + 1) }
+    end
+
     def valid_article_params
       {
         title: "New Article",

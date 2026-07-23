@@ -22,6 +22,32 @@ class TagTest < ActiveSupport::TestCase
     assert_includes duplicate.errors[:name], "has already been taken"
   end
 
+  test "allows name with 50 characters" do
+    tag = Tag.new(name: "あ" * Tag::NAME_MAX_LENGTH)
+
+    assert tag.valid?
+  end
+
+  test "rejects name with 51 characters" do
+    tag = Tag.new(name: "あ" * (Tag::NAME_MAX_LENGTH + 1))
+
+    assert_not tag.valid?
+    assert_includes tag.errors.full_messages, "タグ名は50文字以内で入力してください"
+  end
+
+  test "validates normalized name length" do
+    tag = Tag.new(name: "  #{'あ' * Tag::NAME_MAX_LENGTH}  ")
+
+    assert tag.valid?
+    assert_equal "あ" * Tag::NAME_MAX_LENGTH, tag.name
+  end
+
+  test "allows common japanese alphanumeric and symbolic tag name" do
+    tag = Tag.new(name: "Python 3・機械学習_入門")
+
+    assert tag.valid?
+  end
+
   test "enforces unique name at the database layer" do
     Tag.create!(name: "Ruby")
 

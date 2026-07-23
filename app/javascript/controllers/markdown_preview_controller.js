@@ -23,11 +23,13 @@ export default class extends Controller {
         body: JSON.stringify({ markdown: markdown })
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Network response was not ok")
+        this.showErrorState(data.error)
+        return
       }
 
-      const data = await response.json()
       this.showSuccessState(data.html)
     } catch {
       this.showErrorState()
@@ -66,8 +68,9 @@ export default class extends Controller {
     this.previewTarget.innerHTML = `<div class="markdown-preview-content markdown-body">${html}</div>`
   }
 
-  showErrorState() {
-    this.previewTarget.innerHTML = `<div class="preview-error">通信に失敗しました。時間をおいて再度お試しください。</div>`
+  showErrorState(message = "通信に失敗しました。時間をおいて再度お試しください。") {
+    this.previewTarget.innerHTML = `<div class="preview-error"></div>`
+    this.previewTarget.querySelector(".preview-error").textContent = message
   }
 
   stopLoading() {

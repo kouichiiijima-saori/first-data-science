@@ -53,6 +53,18 @@ class Admin::MarkdownPreviewsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "", response.parsed_body.fetch("html")
   end
 
+  test "rejects markdown preview body exceeding article body maximum length without saving" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      post admin_markdown_preview_path, params: { markdown: "あ" * (Article::BODY_MAX_LENGTH + 1) }
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal "application/json", response.media_type
+    assert_equal "本文は15,000文字以内で入力してください", response.parsed_body.fetch("error")
+  end
+
   test "does not create or update articles" do
     article = Article.create!(title: "既存記事", summary: "概要", body: long_body, status: "draft")
     login_as_admin

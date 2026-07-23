@@ -2,16 +2,43 @@ ja:
   activerecord:
     attributes:
       article:
+        title: "タイトル"
+        summary: "概要"
+        body: "本文"
         thumbnail: "サムネイル画像"
+      tag:
+        name: "タグ名"
     errors:
       models:
         article:
+          format: "%{attribute}%{message}"
           attributes:
+            title:
+              too_long: "は%{count}文字以内で入力してください"
+            summary:
+              too_long: "は%{count}文字以内で入力してください"
+            body:
+              too_long: "は15,000文字以内で入力してください"
+              too_short_plain_text: "は表示上の本文を%{count}文字以上で入力してください"
+              plain_text_validation_failed: "を検証できませんでした"
             thumbnail:
               format: "%{attribute}%{message}"
               invalid_content_type: "はJPEG、PNG、WebP形式のみアップロードできます"
               invalid_extension: "の拡張子が正しくありません"
               file_too_large: "のファイルサイズは5MB以下にしてください"
+        tag:
+          format: "%{attribute}%{message}"
+          attributes:
+            name:
+              too_long: "は%{count}文字以内で入力してください"
+  admin:
+    articles:
+      errors:
+        too_many_tags: "タグは%{count}件以内で入力してください"
+        tag_name_too_long: "タグ名は%{count}文字以内で入力してください"
+    markdown_previews:
+      errors:
+        body_too_long: "本文は%{count}文字以内で入力してください"
   time:
     formats:
       admin_datetime: "%Y/%m/%d %H:%M"

@@ -25,6 +25,45 @@ class ArticleTest < ActiveSupport::TestCase
     assert_equal "draft", article.status
   end
 
+  test "allows title with 120 characters" do
+    article = build_article(title: "あ" * Article::TITLE_MAX_LENGTH)
+
+    assert article.valid?
+  end
+
+  test "rejects title with 121 characters" do
+    article = build_article(title: "あ" * (Article::TITLE_MAX_LENGTH + 1))
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "タイトルは120文字以内で入力してください"
+  end
+
+  test "allows summary with 500 characters" do
+    article = build_article(summary: "あ" * Article::SUMMARY_MAX_LENGTH)
+
+    assert article.valid?
+  end
+
+  test "rejects summary with 501 characters" do
+    article = build_article(summary: "あ" * (Article::SUMMARY_MAX_LENGTH + 1))
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "概要は500文字以内で入力してください"
+  end
+
+  test "allows body with maximum markdown source length" do
+    article = build_article(body: "あ" * Article::BODY_MAX_LENGTH)
+
+    assert article.valid?
+  end
+
+  test "rejects body exceeding maximum markdown source length" do
+    article = build_article(body: "あ" * (Article::BODY_MAX_LENGTH + 1))
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "本文は15,000文字以内で入力してください"
+  end
+
   test "uses longtext for body in mysql" do
     assert_equal "longtext", Article.columns_hash.fetch("body").sql_type
   end
@@ -249,7 +288,7 @@ class ArticleTest < ActiveSupport::TestCase
     end
 
     def plain_text_length_error
-      "must be at least #{Article::MINIMUM_BODY_PLAIN_TEXT_LENGTH} plain text characters"
+      I18n.t("activerecord.errors.models.article.attributes.body.too_short_plain_text", count: Article::MINIMUM_BODY_PLAIN_TEXT_LENGTH)
     end
 
     def thumbnail_content_type_error

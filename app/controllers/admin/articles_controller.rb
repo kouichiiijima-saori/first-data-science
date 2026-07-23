@@ -58,9 +58,14 @@ class Admin::ArticlesController < Admin::BaseController
     end
 
     def save_article_with_tags
+      tag_names = normalized_tag_names
+      article_valid = @article.valid?
+      tag_names_valid = validate_tag_names(tag_names)
+      return false unless article_valid && tag_names_valid
+
       Article.transaction do
         @article.save!
-        assign_tags
+        assign_tags(tag_names)
       end
 
       true
@@ -68,8 +73,24 @@ class Admin::ArticlesController < Admin::BaseController
       false
     end
 
-    def assign_tags
-      tags = normalized_tag_names.map { |name| Tag.find_or_create_by!(name: name) }
+    def validate_tag_names(tag_names)
+      valid = true
+
+      if tag_names.size > Article::MAX_TAGS_PER_ARTICLE
+        @article.errors.add(:base, I18n.t("admin.articles.errors.too_many_tags", count: Article::MAX_TAGS_PER_ARTICLE))
+        valid = false
+      end
+
+      if tag_names.any? { |name| name.length > Tag::NAME_MAX_LENGTH }
+        @article.errors.add(:base, I18n.t("admin.articles.errors.tag_name_too_long", count: Tag::NAME_MAX_LENGTH))
+        valid = false
+      end
+
+      valid
+    end
+
+    def assign_tags(tag_names)
+      tags = tag_names.map { |name| Tag.find_or_create_by!(name: name) }
       @article.tags = tags
     end
 
