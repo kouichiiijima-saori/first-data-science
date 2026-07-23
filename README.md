@@ -23,7 +23,7 @@ Ruby on Rails と MySQL で動作する、データサイエンス初心者向�
 - `INITIAL_ADMIN_EMAIL`: 初期管理者のメールアドレス
 - `INITIAL_ADMIN_PASSWORD`: 初期管理者のパスワード
 
-メールアドレスとパスワードの実値をREADME、Git、`.env`、credentials、ソースコードへ記載しないでください。パスワードは `has_secure_password` により `password_digest` へハッシュ化して保存され、平文では保存されません。
+メールアドレスとパスワードの実値をREADME、Git管理対象、ソースコードへ記載しないでください。`.env` やcredentials等を利用する場合は、実値をGitへcommitせず、納品先の秘密情報管理方針に従ってください。パスワードは `has_secure_password` により `password_digest` へハッシュ化して保存され、平文では保存されません。
 
 ### WSL Ubuntu Terminalでの実行例
 
@@ -33,10 +33,10 @@ Windows PowerShellから作業する場合は、まずUbuntuへ入ります。
 wsl -d Ubuntu-24.04
 ```
 
-Ubuntu Terminalでアプリのディレクトリへ移動し、メールアドレスとパスワードを入力してseedを実行します。`read -s` を使うことで、パスワードを画面へ表示しません。
+Ubuntu Terminalで、アプリを配置したディレクトリへ移動してください。次の `/path/to/first-data-science` は例のため、実際の配置先へ読み替えてください。その後、メールアドレスとパスワードを入力してseedを実行します。`read -s` を使うことで、パスワードを画面へ表示しません。
 
 ```bash
-cd /home/kouic/projects/first-data-science
+cd /path/to/first-data-science
 
 read -r -p "管理者メールアドレス: " INITIAL_ADMIN_EMAIL
 read -r -s -p "管理者パスワード: " INITIAL_ADMIN_PASSWORD

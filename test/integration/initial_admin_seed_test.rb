@@ -92,6 +92,46 @@ class InitialAdminSeedTest < ActiveSupport::TestCase
     assert_includes stdout, "Initial admin seed skipped"
   end
 
+  test "raises in production when initial admin credentials are not set and no admin exists" do
+    clear_initial_admin_env
+    error = nil
+
+    stdout, stderr = capture_io do
+      assert_no_difference -> { Admin.count } do
+        error = assert_raises(RuntimeError) do
+          with_production_environment { load_seed }
+        end
+      end
+    end
+
+    assert_equal "INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD are required when no admin exists in production.",
+      error.message
+    assert_empty stdout
+    assert_empty stderr
+    assert_not_includes stdout, seed_password
+    assert_not_includes stderr, seed_password
+    assert_not_includes stdout, "SECRET_KEY_BASE"
+    assert_not_includes stderr, "SECRET_KEY_BASE"
+  end
+
+  test "skips in production when admin already exists and credentials are not set" do
+    clear_initial_admin_env
+    admin = Admin.create!(email: "admin@example.com", password: seed_password)
+    original_password_digest = admin.password_digest
+    original_updated_at = admin.updated_at
+
+    stdout, = capture_io do
+      assert_no_difference -> { Admin.count } do
+        with_production_environment { load_seed }
+      end
+    end
+
+    admin.reload
+    assert_includes stdout, "Initial admin seed skipped: INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD are not set."
+    assert_equal original_password_digest, admin.password_digest
+    assert_equal original_updated_at, admin.updated_at
+  end
+
   test "fails safely when email is invalid" do
     with_initial_admin_env(email: "not-an-email", password: seed_password)
 
@@ -136,6 +176,22 @@ class InitialAdminSeedTest < ActiveSupport::TestCase
 
     def clear_initial_admin_env
       ENV_KEYS.each { |key| ENV.delete(key) }
+    end
+
+    def with_production_environment
+      env = Rails.env
+      singleton_class = class << env; self; end
+      had_singleton_method = singleton_class.instance_methods(false).include?(:production?)
+      original_method = env.method(:production?) if had_singleton_method
+
+      singleton_class.define_method(:production?) { true }
+      yield
+    ensure
+      if had_singleton_method
+        singleton_class.define_method(:production?, original_method)
+      else
+        singleton_class.remove_method(:production?) if singleton_class.instance_methods(false).include?(:production?)
+      end
     end
 
     def seed_password
