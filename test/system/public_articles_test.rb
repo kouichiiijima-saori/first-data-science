@@ -14,6 +14,17 @@ class PublicArticlesTest < ApplicationSystemTestCase
       body: "本文" * 200,
       status: "draft"
     )
+    @thumbnail_article = Article.create!(
+      title: "サムネイル付き記事",
+      summary: "サムネイル画像が設定されている記事の概要",
+      body: "本文" * 200,
+      status: "published"
+    )
+    @thumbnail_article.thumbnail.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+      filename: "sample.png",
+      content_type: "image/png"
+    )
   end
 
   test "visiting the index" do
@@ -21,12 +32,31 @@ class PublicArticlesTest < ApplicationSystemTestCase
     assert_selector "h1", text: "記事一覧"
     assert_text @published_article.title
     assert_no_text @draft_article.title
+    assert_text @thumbnail_article.title
+
+    within find(".article-card", text: @published_article.title) do
+      assert_no_selector ".article-card-thumbnail"
+    end
+
+    within find(".article-card", text: @thumbnail_article.title) do
+      assert_selector ".article-card-thumbnail"
+      assert_selector ".article-card-thumbnail img[alt='#{@thumbnail_article.title}']"
+    end
   end
 
   test "showing a published article" do
     visit article_url(@published_article)
     assert_selector "h1", text: @published_article.title
     assert_text @published_article.summary
+    assert_no_selector ".article-detail-thumbnail"
+  end
+
+  test "showing a published article with thumbnail" do
+    visit article_url(@thumbnail_article)
+    assert_selector "h1", text: @thumbnail_article.title
+    assert_text @thumbnail_article.summary
+    assert_selector ".article-detail-thumbnail"
+    assert_selector ".article-detail-thumbnail img[alt='#{@thumbnail_article.title}']"
   end
 
   test "showing a draft article returns 404" do
