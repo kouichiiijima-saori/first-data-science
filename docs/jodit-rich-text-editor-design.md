@@ -786,6 +786,69 @@ Task 4への前提:
 - 元画像は加工せず、表示サイズのみ本文HTMLへ保存する方針を維持する。
 
 
+## Task 4 実装結果
+
+実装日: 2026-07-27
+
+採用方式:
+
+- Jodit標準の `resizer` pluginを使用する。
+- resize対象は本文内の `img` に限定する。
+- 元画像ファイルは変更しない。
+- 本文HTMLには表示サイズとして `width` / `height` 属性を保存する。
+- `style` attributeは画像dimension保存の正本にしない。
+
+Jodit設定:
+
+- `allowResizeTags: new Set(["img"])`
+- `resizer.forImageChangeAttributes: true`
+- `resizer.useAspectRatio: new Set(["img"])`
+- `resizer.min_width: 20`
+- `resizer.min_height: 20`
+
+保存時の正規化:
+
+- form submit前とeditor同期時に、本文HTML内の `img` を正規化する。
+- `width` / `height` は正の整数、または `px` 付き整数だけを許可し、属性値は整数文字列へ揃える。
+- `0`、負数、百分率、任意style値は保存用HTMLから除去する。
+- `img` の `style` attributeは削除する。
+- 文字色・文字サイズなど、画像以外のstyleはTask 5 sanitizerまで既存方針を維持する。
+
+Responsive方針:
+
+- 管理画面editor内の画像はCSSで `max-width: 100%; height: auto;` を適用する。
+- Mobile相当幅でもeditorの親幅を超えない。
+- 公開画面でのrich text HTML renderingはTask 5のScopeであり、本Taskでは公開表示へ接続しない。
+
+保持されること:
+
+- 画像upload後に表示サイズを変更できる。
+- 保存後のHTMLに `width` / `height` が残る。
+- 再編集時に保存済みdimensionを読み戻せる。
+- validation失敗後も画像URL、blob `signed_id`、`width` / `height` を保持する。
+
+Security:
+
+- Base64画像は引き続き使用しない。
+- 外部画像URL入力、file browser、source編集は引き続き無効。
+- 任意styleを画像サイズ保存として信用しない。
+- 最終HTML sanitizerと公開画面でのrich text renderingはTask 5で実装する。
+
+未対応:
+
+- 画像ファイル自体の縮小・再生成。
+- トリミング、回転、反転、色補正、filter、画像への文字入れ。
+- orphan blob cleanup。
+- RichTextRenderer、最終HTML sanitizer、公開画面でのrich text HTML表示。
+
+Task 5への前提:
+
+- Task 5 sanitizerでは `img[src]` にActive Storage signed routeだけを許可する。
+- `img[width]` / `img[height]` は正の整数のみ許可する。
+- `img[style]` は原則許可しない。
+- 公開表示CSSでも `max-width: 100%; height: auto;` を適用する。
+
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit

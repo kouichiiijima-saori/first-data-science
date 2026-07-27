@@ -212,6 +212,11 @@ textarea {
   min-height: 360px;
 }
 
+.jodit-wysiwyg img {
+  max-width: 100%;
+  height: auto;
+}
+
 /* Status Badges */
 .status-badge {
   display: inline-block;

@@ -213,7 +213,42 @@ export default class extends Controller {
       return
     }
 
-    this.sourceTarget.value = this.editor.value
+    this.sourceTarget.value = this.normalizeImageDimensions(this.editor.value)
+  }
+
+  normalizeImageDimensions(html) {
+    const document = new DOMParser().parseFromString(html || "", "text/html")
+
+    document.body.querySelectorAll("img").forEach((image) => {
+      const width = this.validImageDimension(image.getAttribute("width")) || this.validImageDimension(image.style.width)
+      const height = this.validImageDimension(image.getAttribute("height")) || this.validImageDimension(image.style.height)
+
+      if (width) {
+        image.setAttribute("width", width)
+      } else {
+        image.removeAttribute("width")
+      }
+
+      if (height) {
+        image.setAttribute("height", height)
+      } else {
+        image.removeAttribute("height")
+      }
+
+      image.removeAttribute("style")
+    })
+
+    return document.body.innerHTML
+  }
+
+  validImageDimension(value) {
+    const match = value?.toString().trim().match(/^(\d+)(px)?$/i)
+    if (!match) {
+      return null
+    }
+
+    const dimension = Number.parseInt(match[1], 10)
+    return dimension > 0 ? dimension.toString() : null
   }
 
   get bodyImageSignedIds() {
@@ -307,6 +342,14 @@ export default class extends Controller {
         ajax: {
           url: ""
         }
+      },
+      allowResizeTags: new Set(["img"]),
+      resizer: {
+        showSize: true,
+        forImageChangeAttributes: true,
+        min_width: 20,
+        min_height: 20,
+        useAspectRatio: new Set(["img"])
       },
       enableDragAndDropFileToEditor: false,
       disablePlugins: [

@@ -57,6 +57,9 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_includes disabled_plugins, "source"
     assert_includes disabled_plugins, "table"
     assert_equal true, page.evaluate_script("document.querySelector('#article_body_rich_text').richTextEditor.options.controls.image.popup === undefined")
+    assert_equal true, page.evaluate_script("Array.from(document.querySelector(\"#article_body_rich_text\").richTextEditor.options.allowResizeTags).includes(\"img\")")
+    assert_equal true, page.evaluate_script("document.querySelector(\"#article_body_rich_text\").richTextEditor.options.resizer.forImageChangeAttributes")
+    assert_equal true, page.evaluate_script("Array.from(document.querySelector(\"#article_body_rich_text\").richTextEditor.options.resizer.useAspectRatio).includes(\"img\")")
   end
 
   test "uploads body image into rich text article and keeps it after re-edit" do
@@ -88,6 +91,36 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_selector ".jodit-wysiwyg img[src*='/rails/active_storage/blobs/']"
   end
 
+  test "keeps resized body image dimensions after save and re-edit" do
+    login_as_admin
+    visit new_admin_article_path
+    select "リッチテキスト", from: "編集方式"
+    assert_rich_text_editor_ready
+
+    fill_in "タイトル", with: "Rich Text Resized Image Article"
+    fill_in "概要", with: "Rich text resized image summary"
+    set_rich_text_body("<h2>画像サイズ見出し</h2><p>#{"本文" * 200}</p>")
+    upload_body_image_fixture("sample.png")
+    assert_selector ".jodit-wysiwyg img[src*=\"/rails/active_storage/blobs/\"]"
+
+    resize_body_image(width: 320, height: 240)
+    assert_includes rich_text_source_value, "width=\"320\""
+    assert_includes rich_text_source_value, "height=\"240\""
+    assert_no_match(/<img[^>]+style=/i, rich_text_source_value)
+
+    click_button "保存する"
+
+    assert_text "記事を作成しました"
+    article = Article.find_by!(title: "Rich Text Resized Image Article")
+    assert_includes article.body, "width=\"320\""
+    assert_includes article.body, "height=\"240\""
+    assert_no_match(/<img[^>]+style=/i, article.body)
+
+    visit edit_admin_article_path(article)
+    assert_rich_text_editor_ready
+    assert_selector ".jodit-wysiwyg img[width=\"320\"][height=\"240\"]"
+  end
+
   test "keeps uploaded body image reference after validation failure" do
     login_as_admin
     visit new_admin_article_path
@@ -100,6 +133,7 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     set_rich_text_body("<h2>画像見出し</h2><p>#{'本文' * 200}</p>")
     upload_body_image_fixture("sample.jpg")
     assert_selector "input[name=\"article[body_image_signed_ids][]\"]", visible: :all
+    resize_body_image(width: 280, height: 210)
     signed_id = page.evaluate_script("document.querySelector('input[name=\\\"article[body_image_signed_ids][]\\\"]').value")
 
     click_button "保存する"
@@ -108,6 +142,8 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_rich_text_editor_ready
     assert_selector "input[name='article[body_image_signed_ids][]'][value='#{signed_id}']", visible: :all
     assert_includes rich_text_source_value, "/rails/active_storage/blobs/"
+    assert_includes rich_text_source_value, "width=\"280\""
+    assert_includes rich_text_source_value, "height=\"210\""
   end
 
   test "shows japanese error when body image upload is invalid" do
@@ -244,6 +280,19 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
         const input = document.getElementById(arguments[0])
         const controller = window.Stimulus.getControllerForElementAndIdentifier(source.closest("form"), "rich-text-editor")
         controller.uploadBodyImageFiles(input.files).catch(() => {}).finally(() => input.remove())
+      JS
+    end
+
+    def resize_body_image(width:, height:)
+      assert_rich_text_editor_ready
+      page.execute_script(<<~JS, width, height)
+        const source = document.querySelector("#article_body_rich_text")
+        const image = document.querySelector(".jodit-wysiwyg img")
+        const controller = window.Stimulus.getControllerForElementAndIdentifier(source.closest("form"), "rich-text-editor")
+        image.setAttribute("width", arguments[0])
+        image.setAttribute("height", arguments[1])
+        image.setAttribute("style", `width: ${arguments[0]}px; height: ${arguments[1]}px; border: 10px solid red;`)
+        controller.syncToSource()
       JS
     end
 
