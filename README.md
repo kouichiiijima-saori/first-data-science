@@ -1,7 +1,14 @@
 # はじめてのデータサイエンス
 
 Ruby on Rails と MySQL で動作する、データサイエンス初心者向け学習サイトです。
-管理者はログイン後にMarkdown形式の記事を作成・編集・削除できます。一般利用者は公開済みの記事だけを閲覧できます。
+管理者はログイン後にMarkdown形式またはリッチテキスト形式（Jodit）の記事を作成・編集・削除できます。一般利用者は公開済みの記事だけを閲覧できます。
+
+## ドキュメント
+
+- [記事編集機能 操作ガイド](docs/article-editor-user-guide.md)
+- [納品前チェックリスト](docs/delivery-checklist.md)
+- [Jodit リッチテキストエディタ設計書](docs/jodit-rich-text-editor-design.md)
+- [要件定義書](docs/requirements.md)
 
 ## 基本環境
 

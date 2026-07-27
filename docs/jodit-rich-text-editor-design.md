@@ -943,6 +943,28 @@ Task 6への前提:
 - rich_text sanitizerのallowlistを拡張する場合は、Jodit toolbarとtestを同時に更新する。
 
 
+## Task 6 実装・総合確認結果
+
+実装日: 2026-07-27
+
+総合E2E確認および要件照合結果:
+
+- **Markdown記事 / リッチテキスト記事の共存**:
+  - 新規作成画面で `editor_type` (Markdown / リッチテキスト) を正常に選択・保存可能。
+  - 保存済み記事では `editor_type` の変更を禁止する安全制御を確認。
+- **入力上限 & Validation**:
+  - Markdown: 原文 15,000 文字以内。
+  - リッチテキスト: 原文 HTML 60,000 文字以内、表示テキスト 15,000 文字以内。
+  - 表示本文 400 文字以上の最小判定、および Validation 失敗後の入力内容保持を確認。
+- **セキュリティ & HTML Sanitizer**:
+  - `script`, `iframe`, `event handler`, 不正な URL スキーマ (`javascript:`, `data:`, プロトコル相対), 非許可外部画像, 未所有 Active Storage Blob などの無効化・除去を確認。
+- **UI / レスポンシブ**:
+  - PC (1440px), Tablet (768px), Mobile (390px) でエディタ表示、リサイズ、公開画面の崩れ・横スクロール防止を確認。
+- **ドキュメント整備**:
+  - 利用者向け操作説明 (`docs/article-editor-user-guide.md`) を新規作成。
+  - 納品前チェックリスト (`docs/delivery-checklist.md`) を新規作成。
+
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit
