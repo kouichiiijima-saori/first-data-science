@@ -965,6 +965,22 @@ Task 6への前提:
   - 納品前チェックリスト (`docs/delivery-checklist.md`) を新規作成。
 
 
+## Task 7 本文画像ライフサイクル調査・削除方針設計結果
+
+調査日: 2026-07-27
+
+調査および設計結果:
+
+- **現状挙動の固定テスト**:
+  - `test/models/article_body_image_lifecycle_test.rb` を作成。
+  - 本文から `<img>` 除去時のアタッチメント/Blob維持、`Article#destroy` 時の `purge_later` 物理削除、離脱時の `unattached` Blob 状態、Validation失敗時の `signed_id` 保持・再利用挙動をテストで検証・固定。
+- **削除方針の設計策定 (`docs/article-body-image-lifecycle-design.md`)**:
+  - HTML から消えたことのみを理由とする即時 purge を拒否。
+  - トランザクション外での非同期クリーンアップ、Blob 参照カウント（`attachments.count == 0`）検証の徹底。
+  - `unattached` な未保存 Blob に対する 24時間/7日間の猶予時間設定。
+  - Task 8 実装仕様および Dry-run / ログ監査機能の定義。
+
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit
