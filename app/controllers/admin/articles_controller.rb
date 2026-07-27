@@ -31,6 +31,7 @@ class Admin::ArticlesController < Admin::BaseController
     if save_article_with_tags
       redirect_to admin_articles_path, notice: "記事を更新しました"
     else
+      restore_locked_editor_type
       prepare_tag_names
       render :edit, status: :unprocessable_entity
     end
@@ -50,7 +51,7 @@ class Admin::ArticlesController < Admin::BaseController
     end
 
     def article_params
-      params.require(:article).permit(:title, :summary, :body, :status, :thumbnail)
+      params.require(:article).permit(:title, :summary, :body, :status, :editor_type, :thumbnail)
     end
 
     def tag_names_param
@@ -87,6 +88,12 @@ class Admin::ArticlesController < Admin::BaseController
       end
 
       valid
+    end
+
+    def restore_locked_editor_type
+      return unless @article.persisted? && @article.will_save_change_to_editor_type?
+
+      @article.editor_type = @article.editor_type_in_database
     end
 
     def assign_tags(tag_names)

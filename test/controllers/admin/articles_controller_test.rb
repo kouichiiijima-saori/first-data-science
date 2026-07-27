@@ -55,6 +55,8 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select "textarea[name='article[summary]']"
     assert_select "textarea[name='article[body]']"
     assert_select "select[name='article[status]']"
+    assert_select "select[name='article[editor_type]']"
+    assert_select "select[name='article[editor_type]'] option[value='markdown'][selected]"
     assert_select "input[name='article[tag_names]']"
     assert_select "input[name='article[thumbnail]'][accept=?]", "image/jpeg,image/png,image/webp"
     assert_includes response.body, "JPEG・PNG・WebP、5MB以下"
@@ -82,8 +84,50 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "New summary", article.summary
     assert_equal long_body, article.body
     assert_equal "published", article.status
+    assert_equal "markdown", article.editor_type
     assert_equal %w[Python Statistics], article.tags.order(:name).pluck(:name)
     assert_operator article.created_at, :>, 1.minute.ago
+  end
+
+  test "creates rich text article" do
+    login_as_admin
+
+    assert_difference -> { Article.count }, 1 do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(editor_type: "rich_text")
+      }
+    end
+
+    article = Article.order(:created_at).last
+    assert_redirected_to admin_articles_path
+    assert_equal "rich_text", article.editor_type
+    assert_equal long_body, article.body
+  end
+
+  test "does not create article with invalid editor type" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(editor_type: "plain_text")
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /編集方式を正しく選択してください/
+  end
+
+  test "keeps selected editor type when new form validation fails" do
+    login_as_admin
+
+    assert_no_difference -> { Article.count } do
+      post admin_articles_path, params: {
+        article: valid_article_params.merge(title: "", editor_type: "rich_text")
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_select "select[name='article[editor_type]'] option[value='rich_text'][selected]"
   end
 
   test "creates article with valid thumbnail" do
@@ -324,6 +368,29 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".error-explanation", /サムネイル画像はJPEG、PNG、WebP形式のみアップロードできます/
     assert_equal original_attributes, @article.attributes.slice("title", "summary", "body", "status")
     assert_equal original_blob_id, @article.thumbnail.blob.id
+    assert_empty @article.tags
+  end
+
+  test "does not allow changing editor type on existing article" do
+    login_as_admin
+    original_attributes = @article.attributes.slice("title", "summary", "body", "status", "editor_type")
+
+    patch admin_article_path(@article), params: {
+      article: {
+        title: "Updated Article",
+        summary: "Updated summary",
+        body: long_body,
+        status: "published",
+        editor_type: "rich_text",
+        tag_names: "Machine Learning"
+      }
+    }
+
+    @article.reload
+    assert_response :unprocessable_entity
+    assert_select ".error-explanation", /編集方式は保存済み記事では変更できません/
+    assert_select "select[name='article[editor_type]'][disabled] option[value='markdown'][selected]"
+    assert_equal original_attributes, @article.attributes.slice("title", "summary", "body", "status", "editor_type")
     assert_empty @article.tags
   end
 

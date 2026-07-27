@@ -25,6 +25,66 @@ class ArticleTest < ActiveSupport::TestCase
     assert_equal "draft", article.status
   end
 
+  test "allows markdown editor type" do
+    article = build_article(editor_type: "markdown")
+
+    assert article.valid?
+  end
+
+  test "allows rich text editor type" do
+    article = build_article(editor_type: "rich_text")
+
+    assert article.valid?
+  end
+
+  test "rejects invalid editor type" do
+    article = build_article(editor_type: "plain_text")
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "編集方式を正しく選択してください"
+  end
+
+  test "rejects nil editor type" do
+    article = build_article(editor_type: nil)
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "編集方式を選択してください"
+  end
+
+  test "defaults editor type to markdown" do
+    article = Article.new(title: "Title", body: long_body, summary: "Summary")
+
+    assert_equal Article::DEFAULT_EDITOR_TYPE, article.editor_type
+  end
+
+  test "uses non nullable markdown default editor type column" do
+    column = Article.columns_hash.fetch("editor_type")
+
+    assert_not column.null
+    assert_equal Article::DEFAULT_EDITOR_TYPE, column.default
+  end
+
+  test "keeps existing body unchanged when editor type default is applied" do
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
+
+    article.reload
+
+    assert_equal long_body, article.body
+    assert_equal "markdown", article.editor_type
+  end
+
+  test "does not allow changing editor type after create" do
+    article = Article.create!(title: "Title", body: long_body, summary: "Summary", status: "draft")
+    original_body = article.body
+
+    assert_not article.update(editor_type: "rich_text")
+    assert_includes article.errors.full_messages, "編集方式は保存済み記事では変更できません"
+
+    article.reload
+    assert_equal "markdown", article.editor_type
+    assert_equal original_body, article.body
+  end
+
   test "allows title with 120 characters" do
     article = build_article(title: "あ" * Article::TITLE_MAX_LENGTH)
 

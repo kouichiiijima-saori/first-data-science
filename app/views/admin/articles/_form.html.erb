@@ -22,6 +22,18 @@
     <%= form.text_area :summary, required: true, rows: 3, maxlength: Article::SUMMARY_MAX_LENGTH %>
   </div>
 
+  <div class="form-group">
+    <%= form.label :editor_type, "編集方式" %>
+    <% if article.persisted? %>
+      <p class="form-help">保存済み記事の編集方式は変更できません。本文の自動変換は行いません。</p>
+      <%= form.hidden_field :editor_type, id: nil %>
+      <%= form.select :editor_type, Article.editor_type_options, {}, disabled: true %>
+    <% else %>
+      <p class="form-help">Markdownまたはリッチテキストを選択できます。リッチテキストエディターは次のTaskで追加予定のため、現時点では本文入力欄はMarkdown互換のtextareaです。</p>
+      <%= form.select :editor_type, Article.editor_type_options, {}, required: true %>
+    <% end %>
+  </div>
+
   <div class="form-group" data-controller="markdown-preview" data-markdown-preview-url-value="<%= admin_markdown_preview_path %>">
     <div class="markdown-preview-header">
       <%= form.label :body, "本文 (Markdown)", class: "markdown-preview-label" %>

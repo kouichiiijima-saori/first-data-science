@@ -1,5 +1,7 @@
 class Article < ApplicationRecord
   STATUSES = %w[draft published].freeze
+  EDITOR_TYPES = %w[markdown rich_text].freeze
+  DEFAULT_EDITOR_TYPE = "markdown"
   MINIMUM_BODY_PLAIN_TEXT_LENGTH = 400
   TITLE_MAX_LENGTH = 120
   SUMMARY_MAX_LENGTH = 500
@@ -20,8 +22,14 @@ class Article < ApplicationRecord
   validates :body, presence: true, length: { maximum: BODY_MAX_LENGTH }
   validates :summary, presence: true, length: { maximum: SUMMARY_MAX_LENGTH }
   validates :status, presence: true, inclusion: { in: STATUSES }
+  validates :editor_type, presence: true, inclusion: { in: EDITOR_TYPES }
   validate :body_plain_text_length
   validate :thumbnail_file
+  validate :editor_type_unchanged_after_create, on: :update
+
+  def self.editor_type_options
+    EDITOR_TYPES.map { |type| [ I18n.t("articles.editor_types.#{type}"), type ] }
+  end
 
   private
     def body_plain_text_length
@@ -32,6 +40,12 @@ class Article < ApplicationRecord
       end
     rescue StandardError
       errors.add(:body, :plain_text_validation_failed)
+    end
+
+    def editor_type_unchanged_after_create
+      return unless will_save_change_to_editor_type?
+
+      errors.add(:editor_type, :cannot_change_after_create)
     end
 
     def thumbnail_file

@@ -6,6 +6,7 @@ ja:
         summary: "概要"
         body: "本文"
         thumbnail: "サムネイル画像"
+        editor_type: "編集方式"
       tag:
         name: "タグ名"
     errors:
@@ -21,6 +22,10 @@ ja:
               too_long: "は15,000文字以内で入力してください"
               too_short_plain_text: "は表示上の本文を%{count}文字以上で入力してください"
               plain_text_validation_failed: "を検証できませんでした"
+            editor_type:
+              inclusion: "を正しく選択してください"
+              blank: "を選択してください"
+              cannot_change_after_create: "は保存済み記事では変更できません"
             thumbnail:
               format: "%{attribute}%{message}"
               invalid_content_type: "はJPEG、PNG、WebP形式のみアップロードできます"
@@ -31,6 +36,10 @@ ja:
           attributes:
             name:
               too_long: "は%{count}文字以内で入力してください"
+  articles:
+    editor_types:
+      markdown: "Markdown"
+      rich_text: "リッチテキスト"
   admin:
     articles:
       errors:

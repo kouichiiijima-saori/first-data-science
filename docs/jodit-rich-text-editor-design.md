@@ -521,6 +521,40 @@ rollback:
 - `bin/rails test`, `bin/rails test:system`, `bin/ci`, Brakeman, bundler-audit, importmap audit, `git diff --check` が成功する。
 - READMEまたはdocsに運用上必要なstorage backup/restore、Jodit asset、本文画像制約が記載されている。
 
+## Task 1 実装結果
+
+実装Task: `feat: 記事の編集方式を追加`
+
+確定したDB定義:
+
+- `articles.editor_type`: `string`, `null: false`, `default: "markdown"`
+- 既存記事はmigration後にDB defaultにより `markdown` として扱う。
+- `articles.body` は既存の `longtext` 共用列のまま維持し、本文内容は変更しない。
+- `body_images` やJodit用assetはTask 1では追加しない。
+
+Model方針:
+
+- `Article::EDITOR_TYPES = %w[markdown rich_text].freeze`
+- `Article::DEFAULT_EDITOR_TYPE = "markdown"`
+- Rails enumは採用しない。既存 `status` と同じく、string定数とinclusion validationで扱う。
+- 理由は、既存コードの文字列paramsとの整合を優先し、Task 1では状態遷移やenum helperを必要としないため。
+
+編集方式変更ルール:
+
+- 新規記事では `markdown` / `rich_text` を選択できる。
+- 新規記事の既定値は `markdown`。
+- 保存済み記事の `editor_type` は変更不可。
+- 本文の自動変換は行わない。
+- 不正に変更paramsが送信された場合も、Model validationで保存を拒否する。
+- 編集画面では現在方式を表示し、selectはdisabledにする。
+
+Task 2への前提:
+
+- `rich_text` を選択して保存する基盤はできている。
+- ただしJodit asset、toolbar、HTML sanitizer、RichTextRenderer、本文画像upload、画像サイズ変更は未実装。
+- Task 2では、`rich_text` 記事の管理画面本文入力欄をJoditへ置き換える。
+- Markdown Previewは引き続きMarkdown記事向け機能として維持する。
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit
