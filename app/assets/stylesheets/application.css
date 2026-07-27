@@ -132,20 +132,29 @@ a:hover {
 @media (min-width: 600px) {
   .article-card {
     flex-direction: row;
+    align-items: center;
   }
 }
 
 .article-card-thumbnail {
   flex-shrink: 0;
   width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
   border-bottom: 1px solid var(--border-color);
 }
 
 @media (min-width: 600px) {
   .article-card-thumbnail {
-    width: 240px;
+    width: 280px;
+    flex: 0 0 280px;
+    aspect-ratio: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border-bottom: none;
     border-right: 1px solid var(--border-color);
+    padding: 1rem 0;
   }
 }
 
@@ -154,6 +163,15 @@ a:hover {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+@media (min-width: 600px) {
+  .article-card-thumbnail img {
+    width: 240px;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    border-radius: 4px;
+  }
 }
 
 .article-card-body {
@@ -224,13 +242,62 @@ a:hover {
 
 .article-detail-thumbnail {
   margin: 1.5rem 0;
+  max-height: 500px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
 .article-detail-thumbnail img {
   width: 100%;
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
   height: auto;
   border-radius: 8px;
   display: block;
+}
+
+/* Article Body */
+.article-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-color);
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  box-sizing: content-box;
+  background-color: #ffffff;
+}
+
+.rich-text-body h2,
+.rich-text-body h3,
+.rich-text-body h4 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.rich-text-body h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.rich-text-body h3 { font-size: 1.25rem; }
+.rich-text-body h4 { font-size: 1rem; }
+
+.rich-text-body p,
+.rich-text-body ul,
+.rich-text-body ol {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.rich-text-body ul,
+.rich-text-body ol {
+  padding-left: 2em;
 }
 
 /* Markdown Styles */

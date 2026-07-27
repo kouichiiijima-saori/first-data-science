@@ -34,7 +34,7 @@
               <% end %>
             </td>
             <td><%= article.tags.map(&:name).join(", ") %></td>
-            <td><%= l(article.updated_at, format: :short) %></td>
+            <td><%= admin_datetime(article.updated_at) %></td>
             <td>
               <div class="actions">
                 <%= link_to "編集", edit_admin_article_path(article), class: "btn" %>
