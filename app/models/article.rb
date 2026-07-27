@@ -35,11 +35,21 @@ class Article < ApplicationRecord
     def body_plain_text_length
       return if body.blank?
 
-      if MarkdownPlainTextExtractor.length(body) < MINIMUM_BODY_PLAIN_TEXT_LENGTH
+      if body_plain_text_length_value < MINIMUM_BODY_PLAIN_TEXT_LENGTH
         errors.add(:body, :too_short_plain_text, count: MINIMUM_BODY_PLAIN_TEXT_LENGTH)
       end
     rescue StandardError
       errors.add(:body, :plain_text_validation_failed)
+    end
+
+    def body_plain_text_length_value
+      return rich_text_plain_text.length if editor_type == "rich_text"
+
+      MarkdownPlainTextExtractor.length(body)
+    end
+
+    def rich_text_plain_text
+      ActionView::Base.full_sanitizer.sanitize(body.to_s).gsub(/[[:space:]]+/, " ").strip
     end
 
     def editor_type_unchanged_after_create

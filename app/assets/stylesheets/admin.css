@@ -192,6 +192,26 @@ textarea {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+.editor-mode-hidden {
+  display: none !important;
+}
+
+.rich-text-editor-fallback {
+  min-height: 420px;
+}
+
+.jodit-container {
+  max-width: 100%;
+}
+
+.jodit-toolbar__box {
+  overflow-x: auto;
+}
+
+.jodit-wysiwyg {
+  min-height: 360px;
+}
+
 /* Status Badges */
 .status-badge {
   display: inline-block;

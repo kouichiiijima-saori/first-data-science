@@ -555,6 +555,132 @@ Task 2への前提:
 - Task 2では、`rich_text` 記事の管理画面本文入力欄をJoditへ置き換える。
 - Markdown Previewは引き続きMarkdown記事向け機能として維持する。
 
+## Task 2 実装結果
+
+実装Task: `feat: Joditによる本文編集を追加`
+
+採用Jodit version:
+
+- `jodit@4.13.5`
+- 設計レビュー時点ではdocs内で具体versionを固定していなかったため、Task 2でnpm公開packageの最新版を確認し、`4.13.5` に固定した。
+
+Asset取得元とlicense:
+
+- 取得元: npm registry tarball `https://registry.npmjs.org/jodit/-/jodit-4.13.5.tgz`
+- license: MIT
+- license file: `vendor/licenses/jodit/LICENSE.txt`
+- 追跡情報: `vendor/licenses/jodit/package.json`, `vendor/licenses/jodit/README.md`
+
+配置file:
+
+- JavaScript: `vendor/javascript/jodit/jodit.min.js`
+- CSS: `app/assets/stylesheets/jodit/jodit.min.css`
+- license: `vendor/licenses/jodit/LICENSE.txt`
+- metadata: `vendor/licenses/jodit/package.json`, `vendor/licenses/jodit/README.md`
+
+読込方法:
+
+- CDNは使用しない。
+- `config/importmap.rb` で `jodit` を `jodit/jodit.min.js` へpinする。
+- `rich_text_editor_controller.js` から `import "jodit"` し、UMD buildが提供する `window.Jodit` を利用する。
+- CSSは管理画面layoutから `stylesheet_link_tag "jodit/jodit.min"` で読み込む。
+- ESM buildは多数の分割moduleとplugin importを伴うため、Importmapでの最小導入よりUMD buildを採用した。
+
+Toolbar構成:
+
+- `paragraph`
+- `fontsize`
+- `brush`
+- `underline`
+- `link`
+- `undo`
+- `redo`
+- `eraser`
+
+非表示・無効化する機能:
+
+- `image`
+- `file`
+- `video`
+- `table`
+- `source`
+- `iframe`
+- `preview`
+- `print`
+- `fullsize`
+- `speech-recognize`
+- `symbols`
+- 今回要件外のupload/file browser系plugin
+
+見出し範囲:
+
+- 通常段落: `p`
+- 見出し2: `h2`
+- 見出し3: `h3`
+- 見出し4: `h4`
+- `h1` は公開記事タイトルとの階層重複を避けるため、本文editorの候補から外す。
+
+文字サイズ方式:
+
+- 任意px入力は許可しない。
+- Joditの候補を次へ制限する。
+  - 小: `0.875rem`
+  - 標準: `1rem`
+  - 大: `1.25rem`
+  - 特大: `1.5rem`
+- Task 5のsanitizeでは、この限定値だけを保持できる方式へ接続する。
+
+文字色方式:
+
+- ブラウザ標準の無制限color pickerは使用しない。
+- Joditの色候補を次のpaletteへ制限する。
+  - `#111827`
+  - `#374151`
+  - `#2563EB`
+  - `#047857`
+  - `#B45309`
+  - `#B91C1C`
+- Task 5のsanitizeでは、このpaletteだけを保持できる方式へ接続する。
+
+Stimulus lifecycle:
+
+- `article_editor_mode_controller.js` が `markdown` / `rich_text` の入力panelとtextareaの有効・無効を切り替える。
+- `rich_text_editor_controller.js` は `rich_text` のときだけJoditを初期化する。
+- `connect` 時、`editor_type` が `rich_text` の場合のみ初期化する。
+- `disconnect` 時にJoditを `destruct` し、Turbo back/forwardや再接続で二重初期化しない。
+- editor切替直前、Jodit change時、form submit直前にtextareaへ同期する。
+- JavaScript無効時も `textarea` fallbackに入力できる構造を残す。
+
+Form同期方式:
+
+- `articles.body` の送信元は既存textareaのまま維持する。
+- Markdown記事ではMarkdown textareaとMarkdown Previewを維持する。
+- Rich text記事ではJoditがtextareaを編集UIへ置き換え、submit前にJodit HTMLを同じtextareaへ同期する。
+- validation失敗後は、serverから返った `article.body` をtextareaへ戻し、Joditがその内容で再初期化する。
+
+Article validationへの影響:
+
+- 既存のMarkdown plain text 400文字validationはMarkdown記事で維持する。
+- Rich text記事ではHTML tagを文字数に含めないよう、validation用にRails標準のfull sanitizerで表示文字列を抽出する。
+- これは公開表示用sanitizeではなく、本文文字数判定のための最小対応である。
+
+Security上の前提:
+
+- Jodit生成HTMLは安全と見なさない。
+- Task 2では最終HTML sanitizer、`RichTextRenderer`、公開画面でのrich text HTML表示は未実装。
+- 公開画面ではrich text bodyを危険にraw HTML表示しない。
+- 画像、file upload、file browser、source編集、Base64画像挿入は有効化しない。
+- Jodit配布file内にあった任意のsource editor向けCDN loader URLは、source pluginを無効化したうえでvendored fileからも除去した。
+- Jodit本体にはupload/filebrowser用の通信処理が含まれるが、Task 2では関連button/plugin/URLを無効化し、自動通信しない構成とする。
+- CSP initializerは現時点で未有効化のため変更しない。CDNを使用しないため、将来CSPを有効化する場合も基本は `self` 前提で検討できる。
+
+Task 3への前提:
+
+- 本文画像uploadは未実装。
+- 次Taskでは認証済み管理者専用upload endpoint、CSRF、JPEG/PNG/WebP制限、Active Storage保存、Base64禁止を追加する。
+- Joditのimage button、file browser、drag & drop uploadはTask 3で安全なendpointとvalidationを接続してから有効化する。
+
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit

@@ -287,6 +287,19 @@ class ArticleTest < ActiveSupport::TestCase
     assert_includes article.errors[:body], plain_text_length_error
   end
 
+test "allows rich text body with at least 400 visible characters" do
+  article = build_article(editor_type: "rich_text", body: "<h2>見出し</h2><p>#{'本文' * 200}</p>")
+
+  assert article.valid?
+end
+
+test "rejects rich text body with fewer than 400 visible characters" do
+  article = build_article(editor_type: "rich_text", body: "<h2>見出し</h2><p>短い本文</p><span style=\"font-size: 1.5rem; color: #2563EB;\"></span>")
+
+  assert_not article.valid?
+  assert_includes article.errors[:body], plain_text_length_error
+end
+
   test "does not count repeated markdown symbols toward body length" do
     article = build_article(body: "#" * 500 + "\n短い本文")
 

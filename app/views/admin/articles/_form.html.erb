@@ -1,4 +1,4 @@
-<%= form_with model: [:admin, article], local: true do |form| %>
+<%= form_with model: [:admin, article], local: true, data: { controller: "article-editor-mode rich-text-editor" } do |form| %>
   <% if article.errors.any? %>
     <div class="error-explanation">
       <h2><%= article.errors.count %>件のエラーにより保存できませんでした：</h2>
@@ -26,17 +26,19 @@
     <%= form.label :editor_type, "編集方式" %>
     <% if article.persisted? %>
       <p class="form-help">保存済み記事の編集方式は変更できません。本文の自動変換は行いません。</p>
-      <%= form.hidden_field :editor_type, id: nil %>
+      <%= form.hidden_field :editor_type, id: nil, data: { article_editor_mode_target: "selector" } %>
       <%= form.select :editor_type, Article.editor_type_options, {}, disabled: true %>
     <% else %>
-      <p class="form-help">Markdownまたはリッチテキストを選択できます。リッチテキストエディターは次のTaskで追加予定のため、現時点では本文入力欄はMarkdown互換のtextareaです。</p>
-      <%= form.select :editor_type, Article.editor_type_options, {}, required: true %>
+      <p class="form-help">Markdownまたはリッチテキストを選択できます。保存後の編集方式は変更できません。</p>
+      <%= form.select :editor_type, Article.editor_type_options, {}, required: true, data: { article_editor_mode_target: "selector", action: "change->article-editor-mode#change" } %>
     <% end %>
   </div>
 
-  <div class="form-group" data-controller="markdown-preview" data-markdown-preview-url-value="<%= admin_markdown_preview_path %>">
+  <% rich_text_mode = article.editor_type == "rich_text" %>
+
+  <div class="form-group<%= " editor-mode-hidden" if rich_text_mode %>" data-article-editor-mode-target="markdownPanel" data-controller="markdown-preview" data-markdown-preview-url-value="<%= admin_markdown_preview_path %>" <%= "hidden" if rich_text_mode %>>
     <div class="markdown-preview-header">
-      <%= form.label :body, "本文 (Markdown)", class: "markdown-preview-label" %>
+      <%= form.label :body, "本文 (Markdown)", class: "markdown-preview-label", for: "article_body_markdown" %>
       <button type="button" class="btn btn-secondary markdown-preview-button" data-markdown-preview-target="button" data-action="click->markdown-preview#preview">プレビューを実行する</button>
     </div>
     <p class="form-help">
@@ -45,7 +47,7 @@
     </p>
 
     <div class="markdown-editor-layout">
-      <%= form.text_area :body, required: true, maxlength: Article::BODY_MAX_LENGTH, class: "markdown-textarea", data: { markdown_preview_target: "source" } %>
+      <%= form.text_area :body, id: "article_body_markdown", required: true, maxlength: Article::BODY_MAX_LENGTH, class: "markdown-textarea", disabled: rich_text_mode, data: { markdown_preview_target: "source", article_editor_mode_target: "markdownBody" } %>
 
       <div class="preview-area">
         <h3 class="preview-area-title">プレビュー結果</h3>
@@ -56,6 +58,12 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <div class="form-group<%= " editor-mode-hidden" unless rich_text_mode %>" data-article-editor-mode-target="richTextPanel" <%= "hidden" unless rich_text_mode %>>
+    <%= form.label :body, "本文 (リッチテキスト)", for: "article_body_rich_text" %>
+    <p class="form-help">段落、見出し2〜4、文字サイズ、文字色、下線、URLリンクを設定できます。本文は表示上の文字数で<%= Article::MINIMUM_BODY_PLAIN_TEXT_LENGTH %>文字以上、最大15,000文字以内です。</p>
+    <%= form.text_area :body, id: "article_body_rich_text", required: true, maxlength: Article::BODY_MAX_LENGTH, class: "rich-text-editor-fallback", disabled: !rich_text_mode, data: { rich_text_editor_target: "source", article_editor_mode_target: "richTextBody" } %>
   </div>
 
   <div class="form-group">

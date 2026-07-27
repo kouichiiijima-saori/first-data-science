@@ -53,7 +53,8 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action=?]", admin_articles_path
     assert_select "input[name='article[title]']"
     assert_select "textarea[name='article[summary]']"
-    assert_select "textarea[name='article[body]']"
+    assert_select "textarea#article_body_markdown[name='article[body]']:not([disabled])"
+    assert_select "textarea#article_body_rich_text[name='article[body]'][disabled]"
     assert_select "select[name='article[status]']"
     assert_select "select[name='article[editor_type]']"
     assert_select "select[name='article[editor_type]'] option[value='markdown'][selected]"
@@ -94,14 +95,41 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_difference -> { Article.count }, 1 do
       post admin_articles_path, params: {
-        article: valid_article_params.merge(editor_type: "rich_text")
+        article: valid_article_params.merge(editor_type: "rich_text", body: rich_text_body)
       }
     end
 
     article = Article.order(:created_at).last
     assert_redirected_to admin_articles_path
     assert_equal "rich_text", article.editor_type
-    assert_equal long_body, article.body
+    assert_equal rich_text_body, article.body
+  end
+
+  test "updates rich text article body without converting html" do
+    login_as_admin
+    article = Article.create!(
+      title: "Rich Text Existing",
+      summary: "Rich text existing summary",
+      body: rich_text_body,
+      status: "draft",
+      editor_type: "rich_text"
+    )
+    updated_body = "<h2>更新見出し</h2><p>#{long_body}</p><p><u>下線</u>と<a href=\"https://example.com\">リンク</a></p>"
+
+    patch admin_article_path(article), params: {
+      article: {
+        title: "Rich Text Updated",
+        summary: "Rich text updated summary",
+        body: updated_body,
+        status: "published",
+        tag_names: "Ruby"
+      }
+    }
+
+    article.reload
+    assert_redirected_to admin_articles_path
+    assert_equal "rich_text", article.editor_type
+    assert_equal updated_body, article.body
   end
 
   test "does not create article with invalid editor type" do
@@ -117,17 +145,19 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".error-explanation", /編集方式を正しく選択してください/
   end
 
-  test "keeps selected editor type when new form validation fails" do
+  test "keeps selected editor type and rich text body when new form validation fails" do
     login_as_admin
 
     assert_no_difference -> { Article.count } do
       post admin_articles_path, params: {
-        article: valid_article_params.merge(title: "", editor_type: "rich_text")
+        article: valid_article_params.merge(title: "", editor_type: "rich_text", body: rich_text_body)
       }
     end
 
     assert_response :unprocessable_entity
     assert_select "select[name='article[editor_type]'] option[value='rich_text'][selected]"
+    assert_select "textarea#article_body_rich_text:not([disabled])", /リッチ見出し/
+    assert_select "textarea#article_body_markdown[disabled]"
   end
 
   test "creates article with valid thumbnail" do
@@ -490,6 +520,10 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     def long_body
       "本文" * 200
+    end
+
+    def rich_text_body
+      "<h2>リッチ見出し</h2><p>#{long_body}</p><p><span style=\"font-size: 1.25rem; color: #2563EB;\">装飾本文</span></p>"
     end
 
     def login_as_admin
