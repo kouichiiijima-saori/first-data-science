@@ -1,4 +1,5 @@
 require "application_system_test_case"
+require "securerandom"
 
 class AdminArticleEditorTypesTest < ApplicationSystemTestCase
   setup do
@@ -43,17 +44,83 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_rich_text_editor_ready
 
     buttons = rich_text_editor_option("buttons")
-    assert_equal %w[paragraph fontsize brush underline link undo redo eraser], buttons
+    assert_equal %w[paragraph fontsize brush underline link undo redo eraser image], buttons
     assert_equal({ "p" => "通常段落", "h2" => "見出し2", "h3" => "見出し3", "h4" => "見出し4" }, rich_text_editor_option("controls")["paragraph"]["list"])
     assert_equal({ "0.875rem" => "小", "1rem" => "標準", "1.25rem" => "大", "1.5rem" => "特大" }, rich_text_editor_option("controls")["fontsize"]["list"])
     assert_equal [ "#111827", "#374151", "#2563EB", "#047857", "#B45309", "#B91C1C" ], rich_text_editor_option("colors")
 
     disabled_plugins = rich_text_editor_option("disablePlugins")
-    assert_includes disabled_plugins, "image"
+    assert_not_includes disabled_plugins, "image"
+    assert_includes disabled_plugins, "image-properties"
     assert_includes disabled_plugins, "file"
     assert_includes disabled_plugins, "video"
     assert_includes disabled_plugins, "source"
     assert_includes disabled_plugins, "table"
+    assert_equal true, page.evaluate_script("document.querySelector('#article_body_rich_text').richTextEditor.options.controls.image.popup === undefined")
+  end
+
+  test "uploads body image into rich text article and keeps it after re-edit" do
+    login_as_admin
+    visit new_admin_article_path
+    select "リッチテキスト", from: "編集方式"
+    assert_rich_text_editor_ready
+    assert_selector ".jodit-toolbar-button_image"
+
+    fill_in "タイトル", with: "Rich Text Image Article"
+    fill_in "概要", with: "Rich text image summary"
+    set_rich_text_body("<h2>画像見出し</h2><p>#{'本文' * 200}</p>")
+    upload_body_image_fixture("sample.png")
+
+    assert_selector ".jodit-wysiwyg img[src*='/rails/active_storage/blobs/']"
+    assert_selector "input[name='article[body_image_signed_ids][]']", visible: :all
+    assert_no_match(/data:image/i, rich_text_source_value)
+    select "公開中 (published)", from: "公開状態"
+    click_button "保存する"
+
+    assert_text "記事を作成しました"
+    article = Article.find_by!(title: "Rich Text Image Article")
+    assert_equal "rich_text", article.editor_type
+    assert article.body_images.attached?
+    assert_includes article.body, "/rails/active_storage/blobs/"
+
+    visit edit_admin_article_path(article)
+    assert_rich_text_editor_ready
+    assert_selector ".jodit-wysiwyg img[src*='/rails/active_storage/blobs/']"
+  end
+
+  test "keeps uploaded body image reference after validation failure" do
+    login_as_admin
+    visit new_admin_article_path
+    select "リッチテキスト", from: "編集方式"
+    assert_rich_text_editor_ready
+
+    fill_in "タイトル", with: "Rich Text Image Validation Article"
+    fill_in "概要", with: "Rich text image summary"
+    fill_in "タグ", with: "あ" * 51
+    set_rich_text_body("<h2>画像見出し</h2><p>#{'本文' * 200}</p>")
+    upload_body_image_fixture("sample.jpg")
+    assert_selector "input[name=\"article[body_image_signed_ids][]\"]", visible: :all
+    signed_id = page.evaluate_script("document.querySelector('input[name=\\\"article[body_image_signed_ids][]\\\"]').value")
+
+    click_button "保存する"
+
+    assert_text "保存できませんでした"
+    assert_rich_text_editor_ready
+    assert_selector "input[name='article[body_image_signed_ids][]'][value='#{signed_id}']", visible: :all
+    assert_includes rich_text_source_value, "/rails/active_storage/blobs/"
+  end
+
+  test "shows japanese error when body image upload is invalid" do
+    login_as_admin
+    visit new_admin_article_path
+    select "リッチテキスト", from: "編集方式"
+    assert_rich_text_editor_ready
+
+    upload_body_image_fixture("sample.html")
+
+    assert_text "本文画像はJPEG、PNG、WebP形式のみアップロードできます"
+    assert_no_selector ".jodit-wysiwyg img"
+    assert_no_selector "input[name='article[body_image_signed_ids][]']", visible: :all
   end
 
   test "edits existing rich text article and keeps body after validation failure" do
@@ -160,6 +227,23 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
         const source = document.querySelector("#article_body_rich_text")
         source.richTextEditor.value = arguments[0]
         source.value = source.richTextEditor.value
+      JS
+    end
+
+    def upload_body_image_fixture(filename)
+      input_id = "body-image-upload-#{SecureRandom.hex(4)}"
+      page.execute_script(<<~JS, input_id)
+        const input = document.createElement("input")
+        input.type = "file"
+        input.id = arguments[0]
+        document.body.append(input)
+      JS
+      attach_file input_id, Rails.root.join("test/fixtures/files", filename)
+      page.execute_script(<<~JS, input_id)
+        const source = document.querySelector("#article_body_rich_text")
+        const input = document.getElementById(arguments[0])
+        const controller = window.Stimulus.getControllerForElementAndIdentifier(source.closest("form"), "rich-text-editor")
+        controller.uploadBodyImageFiles(input.files).catch(() => {}).finally(() => input.remove())
       JS
     end
 

@@ -48,6 +48,15 @@ ja:
     markdown_previews:
       errors:
         body_too_long: "本文は%{count}文字以内で入力してください"
+    article_images:
+      errors:
+        missing_file: "本文画像を選択してください"
+        empty_file: "本文画像が空です"
+        invalid_content_type: "本文画像はJPEG、PNG、WebP形式のみアップロードできます"
+        invalid_extension: "本文画像の拡張子が正しくありません"
+        invalid_signature: "本文画像の内容が画像形式と一致しません"
+        file_too_large: "本文画像のファイルサイズは5MB以下にしてください"
+        upload_failed: "本文画像をアップロードできませんでした"
   time:
     formats:
       admin_datetime: "%Y/%m/%d %H:%M"

@@ -105,6 +105,57 @@ class Admin::ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_equal rich_text_body, article.body
   end
 
+test "attaches uploaded body image signed ids when creating rich text article" do
+  login_as_admin
+  blob = ActiveStorage::Blob.create_and_upload!(
+    io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+    filename: "body.png",
+    content_type: "image/png"
+  )
+  body = "<p>#{long_body}</p><img src=\"#{rails_blob_path(blob, only_path: true)}\" alt=\"本文画像\">"
+
+  assert_difference -> { Article.count }, 1 do
+    post admin_articles_path, params: {
+      article: valid_article_params.merge(
+        editor_type: "rich_text",
+        body: body,
+        body_image_signed_ids: [ blob.signed_id ]
+      )
+    }
+  end
+
+  article = Article.order(:created_at).last
+  assert_redirected_to admin_articles_path
+  assert_equal "rich_text", article.editor_type
+  assert_equal [ blob.id ], article.body_images.blobs.pluck(:id)
+  assert_includes article.body, rails_blob_path(blob, only_path: true)
+end
+
+test "keeps body image signed ids after validation failure" do
+  login_as_admin
+  blob = ActiveStorage::Blob.create_and_upload!(
+    io: File.open(Rails.root.join("test/fixtures/files/sample.jpg")),
+    filename: "body.jpg",
+    content_type: "image/jpeg"
+  )
+  body = "<p>#{long_body}</p><img src=\"#{rails_blob_path(blob, only_path: true)}\" alt=\"本文画像\">"
+
+  assert_no_difference -> { Article.count } do
+    post admin_articles_path, params: {
+      article: valid_article_params.merge(
+        title: "",
+        editor_type: "rich_text",
+        body: body,
+        body_image_signed_ids: [ blob.signed_id ]
+      )
+    }
+  end
+
+  assert_response :unprocessable_entity
+  assert_select "input[name='article[body_image_signed_ids][]'][value=?]", blob.signed_id
+  assert_select "textarea#article_body_rich_text", /rails\/active_storage\/blobs/
+end
+
   test "updates rich text article body without converting html" do
     login_as_admin
     article = Article.create!(

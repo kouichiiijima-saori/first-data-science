@@ -11,10 +11,14 @@ class Article < ApplicationRecord
   THUMBNAIL_ALLOWED_CONTENT_TYPES = %w[image/jpeg image/png image/webp].freeze
   THUMBNAIL_ALLOWED_EXTENSIONS = %w[jpg jpeg png webp].freeze
   THUMBNAIL_MAX_BYTE_SIZE = 5.megabytes
+  BODY_IMAGE_ALLOWED_CONTENT_TYPES = THUMBNAIL_ALLOWED_CONTENT_TYPES
+  BODY_IMAGE_ALLOWED_EXTENSIONS = THUMBNAIL_ALLOWED_EXTENSIONS
+  BODY_IMAGE_MAX_BYTE_SIZE = THUMBNAIL_MAX_BYTE_SIZE
 
   has_many :article_tags, dependent: :destroy
   has_many :tags, through: :article_tags
   has_one_attached :thumbnail
+  has_many_attached :body_images, dependent: :purge_later
 
   scope :published, -> { where(status: "published") }
 

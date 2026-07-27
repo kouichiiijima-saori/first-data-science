@@ -148,6 +148,18 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not ArticleTag.exists?(article_tag.id)
   end
 
+test "has many body images separate from thumbnail" do
+  article = build_article(editor_type: "rich_text")
+  article.body_images.attach(
+    io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+    filename: "body.png",
+    content_type: "image/png"
+  )
+
+  assert article.body_images.attached?
+  assert_not article.thumbnail.attached?
+end
+
   test "allows article without thumbnail" do
     article = build_article
 

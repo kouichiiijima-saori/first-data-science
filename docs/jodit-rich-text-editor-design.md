@@ -681,6 +681,111 @@ Task 3への前提:
 - Joditのimage button、file browser、drag & drop uploadはTask 3で安全なendpointとvalidationを接続してから有効化する。
 
 
+## Task 3 実装結果
+
+実装日: 2026-07-27
+
+採用Architecture:
+
+- 本文画像は `Article` の `has_many_attached :body_images` として扱う。
+- 未保存の新規記事でも画像を挿入できるよう、upload時点ではActive Storage blobを先に作成し、responseで `signed_id` を返す。
+- 記事保存時に `article[body_image_signed_ids][]` を検証し、`rich_text` 記事へ未attachのblobだけをattachする。
+- `articles.body` にはBase64ではなく、Active Storageのsigned blob routeへの画像URLを含むHTMLを保存する。
+- サムネイル `thumbnail` とは別用途のattachmentとして分離する。
+
+Upload endpoint:
+
+- `POST /admin/article_images`
+- Controller: `Admin::ArticleImagesController#create`
+- 認証済み管理者のみ利用可能。
+- 未認証時はJSONで `401 Unauthorized` を返し、公開側routeには露出しない。
+- CSRF tokenはJodit uploaderから `X-CSRF-Token` headerで送信する。
+
+Response形式:
+
+```json
+{
+  "success": true,
+  "url": "/rails/active_storage/blobs/redirect/.../sample.png",
+  "signed_id": "...",
+  "filename": "sample.png",
+  "content_type": "image/png",
+  "data": {
+    "files": ["/rails/active_storage/blobs/redirect/.../sample.png"],
+    "isImages": [true],
+    "baseurl": "",
+    "messages": [],
+    "signed_ids": ["..."],
+    "filename": "sample.png",
+    "content_type": "image/png"
+  }
+}
+```
+
+失敗時は `success: false` と日本語error messageを返す。stack trace、storage内部path、secret、平文情報は返さない。
+
+許可file形式:
+
+- MIME type: `image/jpeg`, `image/png`, `image/webp`
+- extension: `.jpg`, `.jpeg`, `.png`, `.webp`
+- 最大容量: 5MB以下
+
+拒否する形式:
+
+- SVG
+- GIF
+- PDF
+- HTML
+- JavaScript等の未許可形式
+- MIME typeと拡張子の組み合わせが一致しないfile
+- 空file
+- 5MB超過file
+
+Validation:
+
+- `ArticleBodyImageUpload` serviceでupload fileを検証する。
+- content type、extension、byte sizeを確認する。
+- JPEG / PNG / WebPは簡易signatureも確認し、明らかな偽装を拒否する。
+- Active Storageのcontent type推定だけを無条件には信用しない。
+- `Article` modelには本文画像用定数を置き、thumbnailの定数と同じ許可値を参照する。
+
+Jodit接続:
+
+- Task 2で無効化していた `image` buttonは、Task 3でcustom controlとして有効化した。
+- image buttonはローカルfile選択だけを起動し、URL入力、file browser、Base64挿入は提供しない。
+- upload成功後、Joditの現在位置へ `img` を挿入し、textareaへ同期する。
+- upload済みblobの `signed_id` はhidden fieldとして保持し、validation失敗後も再表示できる。
+- Markdown記事ではJodit画像upload UIを表示しない。
+
+URL方式:
+
+- `rails_blob_path(blob, only_path: true)` を返す。
+- same-originのActive Storage signed routeを使い、独自の推測可能なstorage pathや外部URLは返さない。
+- 本文HTMLへ `data:` URLや外部画像URLを挿入しない。
+
+未保存記事とorphan blob:
+
+- 新規記事保存前の画像uploadは許可する。
+- upload後に記事作成を中止した場合、unattached blobが残る可能性がある。
+- 本Taskでは本格cleanup jobは実装しない。
+- 納品前または運用Taskで、24時間以上未attachのblobを `ActiveStorage::Blob.unattached` からpurgeする運用を追加検討する。
+
+Security:
+
+- 認証済み管理者のみupload可能。
+- CSRF tokenを必須にする。
+- SVG、GIF、PDF、HTML、MIME偽装、拡張子偽装、空file、容量超過を拒否する。
+- Base64画像保存をしない。
+- 外部画像URL入力、file browser、source編集は引き続き無効。
+- Jodit生成HTMLはまだ安全と見なさない。最終sanitizeと公開画面でのrich text renderingはTask 5で実装する。
+
+Task 4への前提:
+
+- 画像サイズ変更は未実装。
+- Task 4ではJoditのresize操作と、sanitize後にも保持できる `width` / `height` または限定style方針を確定する。
+- 元画像は加工せず、表示サイズのみ本文HTMLへ保存する方針を維持する。
+
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit

@@ -24,8 +24,13 @@ const COLOR_OPTIONS = [
   "#B91C1C"
 ]
 
+const BODY_IMAGE_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"]
+const BODY_IMAGE_EXTENSIONS = ["jpg", "jpeg", "png", "webp"]
+const BODY_IMAGE_MAX_BYTES = 5 * 1024 * 1024
+
 export default class extends Controller {
-  static targets = ["source"]
+  static targets = ["source", "bodyImageList", "bodyImageSignedId"]
+  static values = { uploadUrl: String }
 
   connect() {
     this.modeChanged = this.modeChanged.bind(this)
@@ -94,6 +99,109 @@ export default class extends Controller {
     if (defaultOptions.controls.fontsize) {
       defaultOptions.controls.fontsize.list = FONT_SIZE_OPTIONS
     }
+
+    defaultOptions.controls.image = {
+      exec: () => this.selectBodyImage(),
+      tooltip: "画像をアップロード"
+    }
+  }
+
+  selectBodyImage() {
+    if (!this.editor) {
+      return
+    }
+
+    const input = document.createElement("input")
+    input.type = "file"
+    input.accept = BODY_IMAGE_CONTENT_TYPES.join(",")
+    input.hidden = true
+
+    input.addEventListener("change", () => {
+      if (!input.files?.length) {
+        input.remove()
+        return
+      }
+
+      this.uploadBodyImageFiles(input.files).catch(() => {}).finally(() => input.remove())
+    }, { once: true })
+
+    document.body.append(input)
+    input.click()
+  }
+
+  uploadBodyImageFiles(files) {
+    return this.editor.uploader.upload(files).then((response) => this.handleUploadSuccess(response))
+  }
+
+  handleUploadSuccess(response) {
+    const payload = response?.data || response || {}
+    const files = payload.files || []
+    const signedIds = payload.signed_ids || []
+
+    this.addBodyImageSignedIds(signedIds)
+
+    files.forEach((file, index) => {
+      if (payload.isImages?.[index] === false) {
+        return
+      }
+
+      const url = `${payload.baseurl || ""}${file}`
+      if (url.startsWith("data:") || /^https?:\/\//i.test(url)) {
+        this.showUploadError("本文画像を挿入できませんでした")
+        return
+      }
+
+      this.editor.selection.insertImage(url)
+    })
+
+    this.syncToSource()
+  }
+
+  addBodyImageSignedIds(signedIds) {
+    if (!this.hasBodyImageListTarget) {
+      return
+    }
+
+    signedIds.forEach((signedId) => {
+      if (!signedId || this.bodyImageSignedIds.includes(signedId)) {
+        return
+      }
+
+      const field = document.createElement("input")
+      field.type = "hidden"
+      field.name = "article[body_image_signed_ids][]"
+      field.value = signedId
+      field.dataset.richTextEditorTarget = "bodyImageSignedId"
+      this.bodyImageListTarget.append(field)
+    })
+  }
+
+  validateFiles(files) {
+    for (const file of files) {
+      const extension = file.name.split(".").pop()?.toLowerCase() || ""
+
+      if (file.size === 0) {
+        return "本文画像が空です"
+      }
+
+      if (file.size > BODY_IMAGE_MAX_BYTES) {
+        return "本文画像のファイルサイズは5MB以下にしてください"
+      }
+
+      if (!BODY_IMAGE_CONTENT_TYPES.includes(file.type)) {
+        return "本文画像はJPEG、PNG、WebP形式のみアップロードできます"
+      }
+
+      if (!BODY_IMAGE_EXTENSIONS.includes(extension)) {
+        return "本文画像の拡張子が正しくありません"
+      }
+    }
+
+    return null
+  }
+
+  showUploadError(message) {
+    this.editor?.message?.error(message || "本文画像をアップロードできませんでした", 4000)
   }
 
   syncBeforeSubmit() {
@@ -108,6 +216,10 @@ export default class extends Controller {
     this.sourceTarget.value = this.editor.value
   }
 
+  get bodyImageSignedIds() {
+    return this.bodyImageSignedIdTargets.map((field) => field.value)
+  }
+
   get form() {
     return this.element.closest("form")
   }
@@ -118,8 +230,26 @@ export default class extends Controller {
     return enabledEditorTypeField?.value || fallbackEditorTypeField?.value || "markdown"
   }
 
+  get csrfToken() {
+    return document.querySelector("meta[name=\"csrf-token\"]")?.content || ""
+  }
+
   get joditConstructor() {
     return window.Jodit?.Jodit || window.Jodit
+  }
+
+  get toolbarButtons() {
+    return [
+      "paragraph",
+      "fontsize",
+      "brush",
+      "underline",
+      "link",
+      "undo",
+      "redo",
+      "eraser",
+      "image"
+    ]
   }
 
   get options() {
@@ -137,57 +267,41 @@ export default class extends Controller {
       showBrowserColorPicker: false,
       colors: COLOR_OPTIONS,
       enter: "p",
-      buttons: [
-        "paragraph",
-        "fontsize",
-        "brush",
-        "underline",
-        "link",
-        "undo",
-        "redo",
-        "eraser"
-      ],
-      buttonsMD: [
-        "paragraph",
-        "fontsize",
-        "brush",
-        "underline",
-        "link",
-        "undo",
-        "redo",
-        "eraser"
-      ],
-      buttonsSM: [
-        "paragraph",
-        "fontsize",
-        "brush",
-        "underline",
-        "link",
-        "undo",
-        "redo",
-        "eraser"
-      ],
-      buttonsXS: [
-        "paragraph",
-        "fontsize",
-        "brush",
-        "underline",
-        "link",
-        "undo",
-        "redo",
-        "eraser"
-      ],
+      buttons: this.toolbarButtons,
+      buttonsMD: this.toolbarButtons,
+      buttonsSM: this.toolbarButtons,
+      buttonsXS: this.toolbarButtons,
       controls: {
         paragraph: {
           list: BLOCK_OPTIONS
         },
         fontsize: {
           list: FONT_SIZE_OPTIONS
+        },
+        image: {
+          exec: () => this.selectBodyImage(),
+          tooltip: "画像をアップロード"
         }
       },
       uploader: {
-        url: "",
-        insertImageAsBase64URI: false
+        url: this.uploadUrlValue,
+        insertImageAsBase64URI: false,
+        imagesExtensions: BODY_IMAGE_EXTENSIONS,
+        filesVariableName: () => "image",
+        headers: {
+          "X-CSRF-Token": this.csrfToken,
+          "Accept": "application/json"
+        },
+        beforeUpload: (files) => {
+          const message = this.validateFiles(files)
+          if (message) {
+            this.showUploadError(message)
+            return false
+          }
+        },
+        defaultHandlerSuccess: (response) => this.handleUploadSuccess(response),
+        defaultHandlerError: (error) => this.showUploadError(error.message),
+        error: (error) => this.showUploadError(error.message)
       },
       filebrowser: {
         ajax: {
@@ -203,7 +317,6 @@ export default class extends Controller {
         "file",
         "fullsize",
         "iframe",
-        "image",
         "image-processor",
         "image-properties",
         "media",
