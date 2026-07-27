@@ -108,6 +108,7 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_includes rich_text_source_value, "height=\"240\""
     assert_no_match(/<img[^>]+style=/i, rich_text_source_value)
 
+    select "公開中 (published)", from: "公開状態"
     click_button "保存する"
 
     assert_text "記事を作成しました"
@@ -115,6 +116,15 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_includes article.body, "width=\"320\""
     assert_includes article.body, "height=\"240\""
     assert_no_match(/<img[^>]+style=/i, article.body)
+
+    visit article_path(article)
+    assert_selector ".rich-text-body h2", text: "画像サイズ見出し"
+    assert_selector ".rich-text-body img[width=\"320\"][height=\"240\"]"
+
+    page.driver.browser.manage.window.resize_to(390, 844)
+    visit article_path(article)
+    assert_selector ".rich-text-body img[width=\"320\"][height=\"240\"]"
+    page.driver.browser.manage.window.resize_to(1400, 1400)
 
     visit edit_admin_article_path(article)
     assert_rich_text_editor_ready

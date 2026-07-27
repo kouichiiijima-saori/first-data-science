@@ -259,6 +259,47 @@ a:hover {
   display: block;
 }
 
+/* Article Body */
+.article-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-color);
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  box-sizing: content-box;
+  background-color: #ffffff;
+}
+
+.rich-text-body h2,
+.rich-text-body h3,
+.rich-text-body h4 {
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.rich-text-body h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+.rich-text-body h3 { font-size: 1.25rem; }
+.rich-text-body h4 { font-size: 1rem; }
+
+.rich-text-body p,
+.rich-text-body ul,
+.rich-text-body ol {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.rich-text-body ul,
+.rich-text-body ol {
+  padding-left: 2em;
+}
+
 /* Markdown Styles */
 .markdown-body {
   font-size: 1rem;

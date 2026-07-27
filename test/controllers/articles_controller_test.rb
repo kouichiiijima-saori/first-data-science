@@ -159,6 +159,70 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select "img", 0
   end
 
+  test "show renders rich text article with allowed formatting" do
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<h2>リッチ見出し</h2><p><span style="font-size: 1.25rem; color: #2563EB;">装飾本文</span><u>下線</u><a href="https://example.com" target="_blank">リンク</a></p>#{long_body})
+    )
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body h2", "リッチ見出し"
+    assert_select ".rich-text-body span[style*='font-size: 1.25rem']", "装飾本文"
+    assert_select ".rich-text-body span[style*='color: #2563EB']", "装飾本文"
+    assert_select ".rich-text-body u", "下線"
+    assert_select ".rich-text-body a[href='https://example.com'][target='_blank'][rel='noopener noreferrer']", "リンク"
+  end
+
+  test "show renders rich text active storage image with dimensions" do
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+      filename: "body.png",
+      content_type: "image/png"
+    )
+    image_url = rails_blob_path(blob, only_path: true)
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<p>#{long_body}</p><img src="#{image_url}" alt="本文画像" width="320" height="240">)
+    )
+    article.body_images.attach(blob)
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body img[src='#{image_url}'][alt='本文画像'][width='320'][height='240']"
+  end
+
+  test "show removes unsafe rich text html and external images" do
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<h1>大見出し</h1><p onclick="alert(1)">#{long_body}</p><script>alert(1)</script><iframe src="https://example.com"></iframe><a href="javascript:alert(1)">危険リンク</a><img src="https://example.com/image.png"><span style="font-size: 99px; color: red; background-image: url(javascript:alert(1))">危険style</span>)
+    )
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body h2", "大見出し"
+    assert_select ".rich-text-body script", false
+    assert_select ".rich-text-body iframe", false
+    assert_select ".rich-text-body [onclick]", false
+    assert_select ".rich-text-body a[href^='javascript']", false
+    assert_select ".rich-text-body img", false
+    assert_not_includes response.body, "background-image"
+    assert_not_includes response.body, "99px"
+    assert_not_includes response.body, "color: red"
+    assert_not_includes response.body, "alert(1)"
+  end
+
+  test "draft rich text article is not public" do
+    article = create_article(editor_type: "rich_text", status: "draft", body: "<p>#{long_body}</p>")
+
+    get article_path(article)
+
+    assert_response :not_found
+  end
+
   private
     def create_article(attributes = {})
       Article.create!({

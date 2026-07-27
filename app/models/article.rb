@@ -6,6 +6,8 @@ class Article < ApplicationRecord
   TITLE_MAX_LENGTH = 120
   SUMMARY_MAX_LENGTH = 500
   BODY_MAX_LENGTH = 15_000
+  RICH_TEXT_HTML_MAX_LENGTH = 60_000
+  RICH_TEXT_TEXT_MAX_LENGTH = 15_000
   MAX_TAGS_PER_ARTICLE = 10
   TAG_NAMES_MAX_LENGTH = Tag::NAME_MAX_LENGTH * MAX_TAGS_PER_ARTICLE + ((MAX_TAGS_PER_ARTICLE - 1) * 2)
   THUMBNAIL_ALLOWED_CONTENT_TYPES = %w[image/jpeg image/png image/webp].freeze
@@ -23,10 +25,11 @@ class Article < ApplicationRecord
   scope :published, -> { where(status: "published") }
 
   validates :title, presence: true, length: { maximum: TITLE_MAX_LENGTH }
-  validates :body, presence: true, length: { maximum: BODY_MAX_LENGTH }
+  validates :body, presence: true
   validates :summary, presence: true, length: { maximum: SUMMARY_MAX_LENGTH }
   validates :status, presence: true, inclusion: { in: STATUSES }
   validates :editor_type, presence: true, inclusion: { in: EDITOR_TYPES }
+  validate :body_length
   validate :body_plain_text_length
   validate :thumbnail_file
   validate :editor_type_unchanged_after_create, on: :update
@@ -36,6 +39,26 @@ class Article < ApplicationRecord
   end
 
   private
+    def body_length
+      return if body.blank?
+
+      if editor_type == "rich_text"
+        validate_rich_text_body_length
+      elsif body.length > BODY_MAX_LENGTH
+        errors.add(:body, :too_long, count: BODY_MAX_LENGTH)
+      end
+    end
+
+    def validate_rich_text_body_length
+      if body.length > RICH_TEXT_HTML_MAX_LENGTH
+        errors.add(:body, :too_long_rich_text_html, count: RICH_TEXT_HTML_MAX_LENGTH)
+      end
+
+      if rich_text_plain_text.length > RICH_TEXT_TEXT_MAX_LENGTH
+        errors.add(:body, :too_long_rich_text_text, count: RICH_TEXT_TEXT_MAX_LENGTH)
+      end
+    end
+
     def body_plain_text_length
       return if body.blank?
 
@@ -53,7 +76,7 @@ class Article < ApplicationRecord
     end
 
     def rich_text_plain_text
-      ActionView::Base.full_sanitizer.sanitize(body.to_s).gsub(/[[:space:]]+/, " ").strip
+      RichTextPlainTextExtractor.extract(body)
     end
 
     def editor_type_unchanged_after_create

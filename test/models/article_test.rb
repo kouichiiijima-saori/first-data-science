@@ -148,17 +148,17 @@ class ArticleTest < ActiveSupport::TestCase
     assert_not ArticleTag.exists?(article_tag.id)
   end
 
-test "has many body images separate from thumbnail" do
-  article = build_article(editor_type: "rich_text")
-  article.body_images.attach(
-    io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
-    filename: "body.png",
-    content_type: "image/png"
-  )
+  test "has many body images separate from thumbnail" do
+    article = build_article(editor_type: "rich_text")
+    article.body_images.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+      filename: "body.png",
+      content_type: "image/png"
+    )
 
-  assert article.body_images.attached?
-  assert_not article.thumbnail.attached?
-end
+    assert article.body_images.attached?
+    assert_not article.thumbnail.attached?
+  end
 
   test "allows article without thumbnail" do
     article = build_article
@@ -311,6 +311,45 @@ test "rejects rich text body with fewer than 400 visible characters" do
   assert_not article.valid?
   assert_includes article.errors[:body], plain_text_length_error
 end
+
+
+  test "allows rich text visible text at maximum length" do
+    article = build_article(editor_type: "rich_text", body: "<p>#{"あ" * Article::RICH_TEXT_TEXT_MAX_LENGTH}</p>")
+
+    assert article.valid?
+  end
+
+  test "rejects rich text visible text exceeding maximum length" do
+    article = build_article(editor_type: "rich_text", body: "<p>#{"あ" * (Article::RICH_TEXT_TEXT_MAX_LENGTH + 1)}</p>")
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "本文は表示上の本文を15,000文字以内で入力してください"
+  end
+
+  test "allows rich text html at maximum length" do
+    visible = "本文" * 200
+    padding_size = Article::RICH_TEXT_HTML_MAX_LENGTH - visible.length - "<p></p>".length
+    article = build_article(editor_type: "rich_text", body: "<p>#{visible}#{" " * padding_size}</p>")
+
+    assert_equal Article::RICH_TEXT_HTML_MAX_LENGTH, article.body.length
+    assert article.valid?
+  end
+
+  test "rejects rich text html exceeding maximum length" do
+    visible = "本文" * 200
+    padding_size = Article::RICH_TEXT_HTML_MAX_LENGTH - visible.length - "<p></p>".length + 1
+    article = build_article(editor_type: "rich_text", body: "<p>#{visible}#{" " * padding_size}</p>")
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "本文HTMLは60,000文字以内で入力してください"
+  end
+
+  test "keeps markdown source maximum separate from rich text html maximum" do
+    article = build_article(body: "あ" * (Article::BODY_MAX_LENGTH + 1))
+
+    assert_not article.valid?
+    assert_includes article.errors.full_messages, "本文は15,000文字以内で入力してください"
+  end
 
   test "does not count repeated markdown symbols toward body length" do
     article = build_article(body: "#" * 500 + "\n短い本文")

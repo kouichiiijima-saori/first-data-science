@@ -848,6 +848,100 @@ Task 5への前提:
 - `img[style]` は原則許可しない。
 - 公開表示CSSでも `max-width: 100%; height: auto;` を適用する。
 
+## Task 5 実装結果
+
+実装日: 2026-07-27
+
+採用方式:
+
+- `articles.body` はJoditが生成したHTML原文を保持し、管理画面で再編集できる状態を維持する。
+- 公開表示では `ArticleBodyRenderer` が `editor_type` を判定し、Markdown記事は既存 `MarkdownRenderer`、rich_text記事は `RichTextRenderer` へ振り分ける。
+- rich_text記事の公開HTMLは `RichTextRenderer` から `RichTextSanitizer` を必ず通して生成する。
+- 保存時には本文HTMLを破壊的にsanitizeしない。表示時sanitizeを公開表示の安全境界とし、Model validationでは `RichTextPlainTextExtractor` により表示上の本文文字数を判定する。
+
+Service責務:
+
+- `RichTextSanitizer`: Jodit HTMLをallowlist方式でsanitizeし、安全なHTML文字列を返す。
+- `RichTextRenderer`: rich_text本文またはArticleからsanitize済みHTMLを生成し、Viewへ渡せるSafeBufferを返す。
+- `ArticleBodyRenderer`: 公開記事本文のrenderer選択を担当し、Controller/ViewへMarkdownとrich_textの分岐を散在させない。
+- `RichTextPlainTextExtractor`: rich_text HTMLから表示上のplain text相当を抽出し、本文400文字以上とrich_text表示文字数上限の判定に使う。
+
+Sanitize allowlist:
+
+- 許可tag: `p`, `br`, `h2`, `h3`, `h4`, `strong`, `em`, `u`, `a`, `ul`, `ol`, `li`, `span`, `img`
+- 変換tag: `b` は `strong`、`i` は `em`、`h1` は `h2`、`h5` / `h6` は `h4` へ変換する。
+- 禁止tag: `script`, `style`, `iframe`, `object`, `embed`, `form`, `input`, `textarea`, `select`, `button`, `svg`, `math`
+- 未許可tagはtag自体を除去し、子要素はsanitize後に本文へ戻す。
+- `onclick`, `onerror` などのevent handler attributeは許可しない。
+
+Attribute方針:
+
+- `a`: `href`, `title`, `target`, `rel`
+- `img`: `src`, `alt`, `width`, `height`
+- `span`: 限定的な `style`
+- それ以外のattributeは除去する。
+- `target="_blank"` のlinkは `rel="noopener noreferrer"` を強制する。
+
+URL方針:
+
+- link URLは `http`, `https`, same-origin relative pathだけを許可する。
+- `javascript:`, `data:`, `blob:`, `file:`, `mailto:`, protocol-relative URLは許可しない。
+- 画像URLはsame-originのActive Storage blob routeだけを許可する。
+- 外部画像URL、data URI、blob URL、query付きまたはfragment付き画像URLは拒否する。
+- 公開表示時は本文画像としてArticleへattach済みのblobだけを許可する。
+
+画像方針:
+
+- `img[src]` は `/rails/active_storage/blobs/...` のsigned routeからblobを検証する。
+- blobはTask 3の `ArticleBodyImageUpload.valid_blob?` と同じJPEG / PNG / WebP、拡張子、容量条件を満たす必要がある。
+- `img[width]` / `img[height]` は正の整数または `px` 付き整数だけを許可し、最大 `4000` までに正規化する。
+- `img[style]` は公開表示HTMLでは保持しない。
+- 公開CSSで本文画像へ `max-width: 100%; height: auto;` を適用し、スマートフォン幅で記事幅を超えないようにする。
+
+文字色・文字サイズ:
+
+- rich_textの文字色と文字サイズは `span[style]` の限定propertyのみ保持する。
+- 許可property: `color`, `font-size`
+- 許可font-size: `0.875rem`, `1rem`, `1.25rem`, `1.5rem`
+- 許可color: `#111827`, `#374151`, `#2563EB`, `#047857`, `#B45309`, `#B91C1C`
+- `background-image`, `position`, `z-index`, `url(...)` など任意styleは保持しない。
+
+入力上限:
+
+- Markdown記事: Markdown原文 `15,000` 文字以内を維持する。
+- rich_text記事: HTML全体 `60,000` 文字以内、表示上の本文 `15,000` 文字以内とする。
+- Markdown / rich_textとも、表示上の本文 `400` 文字以上のvalidationを維持する。
+- rich_textのplain text抽出ではHTML tagを除去し、画像は `alt` textを本文相当として扱う。
+
+公開表示:
+
+- `ArticlesController#show` は公開記事だけを取得し、`ArticleBodyRenderer.render(@article)` の結果を本文表示へ渡す。
+- Viewはsanitize済みHTMLだけを出力し、rawな `articles.body` を直接HTMLとして表示しない。
+- Markdown記事は既存 `.markdown-body`、rich_text記事は `.rich-text-body` のclassで表示する。
+- Markdown Preview APIは今回変更しない。
+
+Security test:
+
+- script / iframe / event handler attributeを除去する。
+- `javascript:` URL、data URI、外部画像URLを除去する。
+- Active Storageに存在していても、記事へattachされていない本文画像は公開表示しない。
+- code上で `html_safe` を使う箇所は `RichTextRenderer` のsanitize済み戻り値に限定する。
+- Brakeman、bundler-audit、importmap auditをローカルCIで確認する。
+
+未対応:
+
+- orphan blob cleanup。
+- 本文から画像を削除した際の物理削除。
+- 記事削除時の本文画像purge方針変更。
+- production storage最終決定。
+- Markdownとrich_textの相互変換。
+
+Task 6への前提:
+
+- orphan blob cleanupやproduction storage運用は別Taskで扱う。
+- 公開表示の最終CSS調整や顧客確認はAntigravityまたは後続Taskで行う。
+- rich_text sanitizerのallowlistを拡張する場合は、Jodit toolbarとtestを同時に更新する。
+
 
 ## 参考情報
 

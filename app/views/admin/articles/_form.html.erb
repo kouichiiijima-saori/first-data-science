@@ -62,8 +62,8 @@
 
   <div class="form-group<%= " editor-mode-hidden" unless rich_text_mode %>" data-article-editor-mode-target="richTextPanel" <%= "hidden" unless rich_text_mode %>>
     <%= form.label :body, "本文 (リッチテキスト)", for: "article_body_rich_text" %>
-    <p class="form-help">段落、見出し2〜4、文字サイズ、文字色、下線、URLリンクを設定できます。本文は表示上の文字数で<%= Article::MINIMUM_BODY_PLAIN_TEXT_LENGTH %>文字以上、最大15,000文字以内です。</p>
-    <%= form.text_area :body, id: "article_body_rich_text", required: true, maxlength: Article::BODY_MAX_LENGTH, class: "rich-text-editor-fallback", disabled: !rich_text_mode, data: { rich_text_editor_target: "source", article_editor_mode_target: "richTextBody" } %>
+    <p class="form-help">段落、見出し2〜4、文字サイズ、文字色、下線、URLリンクを設定できます。本文は表示上の文字数で<%= Article::MINIMUM_BODY_PLAIN_TEXT_LENGTH %>文字以上、最大<%= number_with_delimiter(Article::RICH_TEXT_TEXT_MAX_LENGTH) %>文字以内、HTML全体で最大<%= number_with_delimiter(Article::RICH_TEXT_HTML_MAX_LENGTH) %>文字以内です。</p>
+    <%= form.text_area :body, id: "article_body_rich_text", required: true, maxlength: Article::RICH_TEXT_HTML_MAX_LENGTH, class: "rich-text-editor-fallback", disabled: !rich_text_mode, data: { rich_text_editor_target: "source", article_editor_mode_target: "richTextBody" } %>
     <div data-rich-text-editor-target="bodyImageList">
       <% Array(body_image_signed_ids).each do |signed_id| %>
         <%= hidden_field_tag "article[body_image_signed_ids][]", signed_id, data: { rich_text_editor_target: "bodyImageSignedId" } %>

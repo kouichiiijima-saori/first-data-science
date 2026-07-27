@@ -20,6 +20,8 @@ ja:
               too_long: "は%{count}文字以内で入力してください"
             body:
               too_long: "は15,000文字以内で入力してください"
+              too_long_rich_text_html: "HTMLは60,000文字以内で入力してください"
+              too_long_rich_text_text: "は表示上の本文を15,000文字以内で入力してください"
               too_short_plain_text: "は表示上の本文を%{count}文字以上で入力してください"
               plain_text_validation_failed: "を検証できませんでした"
             editor_type:
