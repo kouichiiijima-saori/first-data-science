@@ -7,7 +7,7 @@ class ArticleBodyImageLifecycleTest < ActiveSupport::TestCase
     @admin = Admin.create!(email: "admin@example.com", password: "password123")
   end
 
-  test "keeps body_images attachment and blob when image tag is removed from body on article update" do
+  test "detaches body_images attachment and enqueues blob purge when image tag is removed on article update" do
     blob = create_body_image_blob("sample.png")
     image_url = Rails.application.routes.url_helpers.rails_blob_path(blob, only_path: true)
     body_with_image = %(<h2>見出し</h2><p>#{'本文' * 200}</p><img src="#{image_url}" width="320">)
@@ -28,12 +28,16 @@ class ArticleBodyImageLifecycleTest < ActiveSupport::TestCase
     body_without_image = %(<h2>見出し</h2><p>#{'本文' * 200}のみ更新</p>)
     article.update!(body: body_without_image)
 
-    # Current behavior: removing <img> tag from body does NOT purge attachment or blob
+    perform_enqueued_jobs do
+      result = ArticleBodyImageSynchronizer.call(article)
+      assert_equal 1, result[:detached_count]
+      assert_equal 1, result[:purged_count]
+    end
+
     article.reload
     assert_not_includes article.body, "<img"
-    assert_equal 1, article.body_images.count
-    assert ActiveStorage::Blob.exists?(blob.id)
-    assert blob.service.exist?(blob.key)
+    assert_equal 0, article.body_images.count
+    assert_not ActiveStorage::Blob.exists?(blob.id)
   end
 
   test "purges body_images attachments and blobs when article is destroyed" do
@@ -49,7 +53,6 @@ class ArticleBodyImageLifecycleTest < ActiveSupport::TestCase
     article.body_images.attach(blob)
 
     blob_id = blob.id
-    blob_key = blob.key
 
     assert ActiveStorage::Blob.exists?(blob_id)
 

@@ -76,6 +76,8 @@ class Admin::ArticlesController < Admin::BaseController
         attach_body_images(body_image_signed_ids)
       end
 
+      ArticleBodyImageSynchronizer.call(@article)
+
       true
     rescue ActiveRecord::RecordInvalid
       false
