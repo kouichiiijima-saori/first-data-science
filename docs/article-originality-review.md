@@ -137,7 +137,7 @@ AIが生成した説明文のような硬さや均一さを減らし、初学者
 
 ## 4. 総合品質検証結果
 
-1. **RichTextSanitizer 適合性**: 記事 6〜10 の Rich Text HTML ファイルに対し `RichTextSanitizer.sanitize` を全件実行し、Sanitizer エラー 0 件を確認。
+1. **RichTextSanitizer 適合性 & HTML 構文**: 記事 6〜10 の Rich Text HTML ファイルに対し `RichTextSanitizer.sanitize` および Nokogiri HTML5 パース構造検証を全件実行し、Sanitizer エラーおよび閉じタグ欠落 0 件を確認。
 2. **Python 構文チェック**: 全 Python コードブロックの AST パースを実行し、構文エラー 0 件を確認。
 3. **誤字・異体字の機械検索**: `レコ―ド`, `ﾄｳｷｮウ`, `か度合い`, `遠い世界技術`, `レコーダー`, `視覚的インサイト`, バッククォート `` ` ``, `70〜80%`, `7〜8割` の全項目でゼロ件を確認。
 4. **文字数要件**: 表示テキストで 1,289 〜 1,905 文字（全記事 400 文字以上をクリア）。
