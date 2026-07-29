@@ -12,3 +12,5 @@
 !/tmp/pids/.keep
 /storage/*
 !/storage/.keep
+/public/assets
+

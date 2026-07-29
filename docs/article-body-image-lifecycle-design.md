@@ -75,4 +75,44 @@
 
 - `docs/jodit-rich-text-editor-design.md`: ライフサイクル設計と Task 8 でのクリーンアップ方針を追記。
 - `docs/article-editor-user-guide.md`: 「保存前の未保存画像」「本文から削除した画像の物理削除」に関する運用注意事項の記載と整合。
-- `docs/delivery-checklist.md`: クリーンアップ未実装（将来の Task 8 課題）の旨を明記。
+- `docs/delivery-checklist.md`: クリーンアップ実装完了を明記。
+
+---
+
+## 6. Task 8 実装結果
+
+### A. 本文削除画像の同期 (`ArticleBodyImageSynchronizer`)
+- **同期実行タイミング**:
+  - `Admin::ArticlesController` での Article 保存・更新トランザクション成功後に同期サービス `ArticleBodyImageSynchronizer.call(@article)` を実行。
+  - バリデーション失敗時や Markdown 記事更新時には実行されません。
+- **detach & purge 条件**:
+  - 保存された本文 HTML 内の Active Storage Blob ID 群を `Nokogiri::HTML5.fragment` で抽出。
+  - `body_images` アタッチメントのうち、本文 HTML 内に存在しないものを detach。
+  - detach 後に `ActiveStorage::Attachment.where(blob_id: blob_id).exists?` で他アタッチメント（他記事やアイキャッチなど）からの完全未参照を確認し、完全未参照の場合のみ `blob.purge_later` で非同期物理削除をエンキュー。
+
+### B. 記事削除時
+- `has_many_attached :body_images, dependent: :purge_later` の既存動作を維持。
+
+### C. 未保存 Orphan Blob クリーンアップ (`OrphanActiveStorageBlobCleanup`)
+- **対象**: `ActiveStorage::Blob.unattached` かつ `created_at < cutoff_time`（既定 7 日前）。
+- **安全保護ルール**:
+  - `ORPHAN_AGE_DAYS` 環境変数で指定された日数が 1 未満または不正値の場合、自動的に安全な既定値 `7日`（168時間）にフォールバック。
+  - 削除実行直前にも `blob.attachments.exists?` を再確認し、race condition で attach された Blob はスキップ。
+  - `DRY_RUN=true` では実際の purge を行わず、対象件数・対象容量・Blob ID をコンソールおよびログへ出力。
+- **Rake コマンド**:
+  ```bash
+  # 既定（7日前 unattached 物理削除）
+  bin/rails article_body_images:cleanup_orphans
+
+  # Dry-run モード（削除を行わず確認のみ）
+  DRY_RUN=true bin/rails article_body_images:cleanup_orphans
+
+  # 猶予日数の指定（例: 14日前）
+  ORPHAN_AGE_DAYS=14 bin/rails article_body_images:cleanup_orphans
+  ```
+
+### D. Concurrency / 誤削除対策
+- DB トランザクション内で外部ストレージ削除を行わない設計。
+- 物理削除はすべて ActiveJob 経由の `purge_later` で非同期処理。
+- 個人情報保護のため、ログへは Blob ID、件数、容量のみを出力し、元ファイル名の大規模出力は抑制。
+- production 定期実行（Cron / Solid Queue recurring job）は本環境構成未決定のため未設定。運用コマンドとして本 Rake タスクを完備。

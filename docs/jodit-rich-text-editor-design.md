@@ -981,6 +981,25 @@ Task 6への前提:
   - Task 8 実装仕様および Dry-run / ログ監査機能の定義。
 
 
+## Task 8 本文削除画像のdetach・未参照Blobのpurge・orphan cleanup実装結果
+
+実装日: 2026-07-29
+
+実装結果:
+
+- **本文削除画像の同期 (`ArticleBodyImageSynchronizer`)**:
+  - 記事更新成功後、保存済み HTML 内から参照されている Blob ID 群を `Nokogiri::HTML5` で抽出し、参照されなくなった `body_images` アタッチメントを safe detach。
+  - detach 後、完全未参照となった Blob のみ `purge_later` で非同期物理削除。
+  - トランザクション外実行、バリデーション失敗時・Markdown 記事更新時の非実行、二重参照の誤削除防止を実装。
+- **未保存 Orphan Blob クリーンアップ (`OrphanActiveStorageBlobCleanup`)**:
+  - 7 日間（既定、`ORPHAN_AGE_DAYS` で変更可）経過した `ActiveStorage::Blob.unattached` のみを対象として抽出・safe purge。
+  - 1 日（24 時間）の安全下限、`DRY_RUN=true` 対応、削除直前の attach 再確認を実装。
+- **運用タスク (`lib/tasks/article_body_images.rake`)**:
+  - `bin/rails article_body_images:cleanup_orphans`
+  - `DRY_RUN=true bin/rails article_body_images:cleanup_orphans`
+  - `ORPHAN_AGE_DAYS=7 bin/rails article_body_images:cleanup_orphans`
+
+
 ## 参考情報
 
 - Jodit GitHub repository: https://github.com/xdan/jodit

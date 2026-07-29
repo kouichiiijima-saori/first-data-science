@@ -24,8 +24,8 @@
 | `bin/setup --skip-server` | 依存関係およびDBの初期化 | ✅ PASSED |
 | `bin/rails db:prepare` | マイグレーション適用 | ✅ PASSED |
 | `bin/rails db:seed` | 初期管理者ユーザーの安全登録 | ✅ PASSED |
-| `bin/rails test` | 単体・結合テスト全件実行 (221 runs) | ✅ 0 Failures |
-| `bin/rails test:system` | システムテスト（ブラウザ統合テスト）全件実行 (31 runs) | ✅ 0 Failures |
+| `bin/rails test` | 単体・結合テスト全件実行 (236 runs) | ✅ 0 Failures |
+| `bin/rails test:system` | システムテスト（ブラウザ統合テスト）全件実行 (26 runs) | ✅ 0 Failures |
 | `bin/rails zeitwerk:check` | Zeitwerkオートロード定義の検証 | ✅ ALL CLEAR |
 | `bin/rubocop` | Rubyコードスタイル検証 | ✅ 0 Offenses |
 | `bin/brakeman --quiet --no-pager` | 静的セキュリティ診断 | ✅ 0 Warnings |
@@ -70,7 +70,7 @@
 
 ### 4.3 現時点の未対応事項（将来の運用保守課題）
 1. **Production Storage**: 現在はローカルディスクストレージ設定。本番インフラ構築時にS3等の外部ストレージ決定が必要。
-2. **Orphan Blob Cleanup**: 保存せずに離脱した際の未保存画像 Blob や、本文から削除した画像の自動クリーンアップ処理（物理削除）は未実装。
+2. **Orphan Blob / 本文削除画像 Cleanup**: `ArticleBodyImageSynchronizer`（本文削除画像の detach & purge）および `OrphanActiveStorageBlobCleanup` / `bin/rails article_body_images:cleanup_orphans`（未保存 Orphan Blob 7日後 safe purge & dry-run）が実装済み。
 3. **画像編集機能**: トリミング、回転、反転、画像自体の物理的圧縮・リサイズは本Scope外。
 
 ---
