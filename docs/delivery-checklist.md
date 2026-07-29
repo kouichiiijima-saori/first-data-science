@@ -25,7 +25,7 @@
 | `bin/rails db:prepare` | マイグレーション適用 | ✅ PASSED |
 | `bin/rails db:seed` | 初期管理者ユーザーの安全登録 | ✅ PASSED |
 | `bin/rails test` | 単体・結合テスト全件実行 (236 runs) | ✅ 0 Failures |
-| `bin/rails test:system` | システムテスト（ブラウザ統合テスト）全件実行 (31 runs) | ✅ 0 Failures |
+| `bin/rails test:system` | システムテスト（ブラウザ統合テスト）全件実行 (26 runs) | ✅ 0 Failures |
 | `bin/rails zeitwerk:check` | Zeitwerkオートロード定義の検証 | ✅ ALL CLEAR |
 | `bin/rubocop` | Rubyコードスタイル検証 | ✅ 0 Offenses |
 | `bin/brakeman --quiet --no-pager` | 静的セキュリティ診断 | ✅ 0 Warnings |
