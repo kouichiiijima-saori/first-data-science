@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="480" viewBox="0 0 800 480">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+  </defs>
+  <rect width="800" height="480" fill="#ffffff" />
+
+  <text x="400" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">身近なデータ活用例</text>
+  <text x="400" y="90" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" fill="#64748b" text-anchor="middle">データが集まると、さまざまな便利なサービスに活用されます</text>
+
+  <!-- 1. ECレコメンド -->
+  <rect x="25" y="130" width="235" height="300" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+  <rect x="25" y="130" width="235" height="50" fill="#e2e8f0" rx="8" />
+  <rect x="25" y="160" width="235" height="20" fill="#e2e8f0" />
+  <text x="142.5" y="162" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" font-weight="bold" fill="#334155" text-anchor="middle">1. ECレコメンド</text>
+
+  <rect x="35" y="200" width="215" height="50" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+  <text x="142.5" y="231" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#334155" text-anchor="middle">データ：購買履歴など</text>
+
+  <line x1="142.5" y1="250" x2="142.5" y2="280" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" />
+
+  <rect x="35" y="290" width="215" height="50" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2" />
+  <text x="142.5" y="321" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#334155" text-anchor="middle">分析・予測</text>
+
+  <line x1="142.5" y1="340" x2="142.5" y2="370" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" />
+
+  <rect x="35" y="380" width="215" height="50" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2" />
+  <text x="142.5" y="411" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">活用：商品をおすすめ</text>
+
+
+  <!-- 2. 動画配信 -->
+  <rect x="282.5" y="130" width="235" height="300" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+  <rect x="282.5" y="130" width="235" height="50" fill="#e2e8f0" rx="8" />
+  <rect x="282.5" y="160" width="235" height="20" fill="#e2e8f0" />
+  <text x="400" y="162" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" font-weight="bold" fill="#334155" text-anchor="middle">2. 動画配信</text>
+
+  <rect x="292.5" y="200" width="215" height="50" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+  <text x="400" y="231" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#334155" text-anchor="middle">データ：視聴履歴など</text>
+
+  <line x1="400" y1="250" x2="400" y2="280" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" />
+
+  <rect x="292.5" y="290" width="215" height="50" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2" />
+  <text x="400" y="321" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#334155" text-anchor="middle">分析・予測</text>
+
+  <line x1="400" y1="340" x2="400" y2="370" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" />
+
+  <rect x="292.5" y="380" width="215" height="50" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2" />
+  <text x="400" y="403" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">活用：興味に合う</text>
+  <text x="400" y="421" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">動画を提案</text>
+
+
+  <!-- 3. 配送最適化 -->
+  <rect x="540" y="130" width="235" height="300" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+  <rect x="540" y="130" width="235" height="50" fill="#e2e8f0" rx="8" />
+  <rect x="540" y="160" width="235" height="20" fill="#e2e8f0" />
+  <text x="657.5" y="162" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" font-weight="bold" fill="#334155" text-anchor="middle">3. 配送最適化</text>
+
+  <rect x="550" y="200" width="215" height="50" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" />
+  <text x="657.5" y="222" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" fill="#334155" text-anchor="middle">データ：道路状況・</text>
+  <text x="657.5" y="240" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" fill="#334155" text-anchor="middle">配送データ</text>
+
+  <line x1="657.5" y1="250" x2="657.5" y2="280" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" />
+
+  <rect x="550" y="290" width="215" height="50" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2" />
+  <text x="657.5" y="321" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#334155" text-anchor="middle">分析・予測</text>
+
+  <line x1="657.5" y1="340" x2="657.5" y2="370" stroke="#2563eb" stroke-width="3" marker-end="url(#arrow)" />
+
+  <rect x="550" y="380" width="215" height="50" rx="6" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2" />
+  <text x="657.5" y="403" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">活用：効率的な</text>
+  <text x="657.5" y="421" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="14" font-weight="bold" fill="#2563eb" text-anchor="middle">ルートを検討</text>
+
+</svg>

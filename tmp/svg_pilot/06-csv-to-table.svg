@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="960" viewBox="0 0 800 960">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+  </defs>
+  <rect width="800" height="960" fill="#ffffff" />
+
+  <!-- CSV Section -->
+  <text x="400" y="60" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">CSVデータ（テキスト）</text>
+
+  <rect x="80" y="100" width="640" height="200" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="4" />
+  
+  <text x="120" y="150" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, monospace, sans-serif" font-size="32" fill="#334155">日付<tspan fill="#2563eb" font-weight="bold">,</tspan>商品名<tspan fill="#2563eb" font-weight="bold">,</tspan>単価</text>
+  <text x="120" y="210" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, monospace, sans-serif" font-size="32" fill="#334155">2026-04-01<tspan fill="#2563eb" font-weight="bold">,</tspan>リンゴ<tspan fill="#2563eb" font-weight="bold">,</tspan>150</text>
+  <text x="120" y="270" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, monospace, sans-serif" font-size="32" fill="#334155">2026-04-02<tspan fill="#2563eb" font-weight="bold">,</tspan>バナナ<tspan fill="#2563eb" font-weight="bold">,</tspan>120</text>
+
+  <!-- Flow Arrow -->
+  <line x1="400" y1="340" x2="400" y2="400" stroke="#2563eb" stroke-width="6" marker-end="url(#arrow)" />
+
+  <!-- Table Section -->
+  <text x="400" y="460" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">表形式データ（行と列の構造）</text>
+
+  <!-- Table -->
+  <rect x="300" y="500" width="480" height="240" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  <rect x="300" y="500" width="480" height="80" fill="#f1f5f9" />
+  <line x1="300" y1="580" x2="780" y2="580" stroke="#e2e8f0" stroke-width="4" />
+  <line x1="300" y1="660" x2="780" y2="660" stroke="#e2e8f0" stroke-width="4" />
+  
+  <line x1="460" y1="500" x2="460" y2="740" stroke="#e2e8f0" stroke-width="4" />
+  <line x1="620" y1="500" x2="620" y2="740" stroke="#e2e8f0" stroke-width="4" />
+
+  <!-- Header -->
+  <text x="380" y="552" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">日付</text>
+  <text x="540" y="552" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">商品名</text>
+  <text x="700" y="552" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">単価</text>
+
+  <!-- Row 1 -->
+  <text x="380" y="632" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">2026-04-01</text>
+  <text x="540" y="632" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">リンゴ</text>
+  <text x="700" y="632" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">150</text>
+
+  <!-- Row 2 -->
+  <text x="380" y="712" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">2026-04-02</text>
+  <text x="540" y="712" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">バナナ</text>
+  <text x="700" y="712" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">120</text>
+
+  <!-- Annotations using Brackets -->
+  
+  <!-- Header Bracket -->
+  <path d="M 295 510 L 285 510 L 285 570 L 295 570" fill="none" stroke="#2563eb" stroke-width="3" />
+  <text x="210" y="550" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" font-weight="bold" fill="#2563eb" text-anchor="end">ヘッダー</text>
+  <line x1="220" y1="540" x2="275" y2="540" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+
+  <!-- Row Bracket -->
+  <path d="M 295 590 L 285 590 L 285 650 L 295 650" fill="none" stroke="#2563eb" stroke-width="3" />
+  <text x="210" y="630" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" font-weight="bold" fill="#2563eb" text-anchor="end">行（レコード）</text>
+  <line x1="220" y1="620" x2="275" y2="620" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+
+  <!-- Column Bracket -->
+  <path d="M 470 745 L 470 755 L 610 755 L 610 745" fill="none" stroke="#2563eb" stroke-width="3" />
+  <text x="540" y="840" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" font-weight="bold" fill="#2563eb" text-anchor="middle">列（カラム）</text>
+  <line x1="540" y1="800" x2="540" y2="765" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="380" viewBox="0 0 800 380">
+  <rect width="800" height="380" fill="#ffffff" />
+
+  <text x="400" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">Python主要データ分析ライブラリ</text>
+  <text x="400" y="90" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" fill="#64748b" text-anchor="middle">それぞれが異なる役割（得意分野）を持っています</text>
+
+  <rect x="250" y="120" width="300" height="50" rx="25" fill="#1e293b" />
+  <text x="400" y="153" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="24" font-weight="bold" fill="#ffffff" text-anchor="middle">Pythonでデータ分析</text>
+
+  <!-- 1. pandas -->
+  <rect x="20" y="200" width="240" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  
+  <text x="140" y="245" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" font-weight="bold" fill="#2563eb" text-anchor="middle">pandas</text>
+  <text x="140" y="285" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" fill="#334155" text-anchor="middle">表形式データの操作</text>
+  <text x="140" y="315" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#64748b" text-anchor="middle">（読み込み・整理・集計）</text>
+
+
+  <!-- 2. NumPy -->
+  <rect x="280" y="200" width="240" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  
+  <text x="400" y="245" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" font-weight="bold" fill="#2563eb" text-anchor="middle">NumPy</text>
+  <text x="400" y="285" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" fill="#334155" text-anchor="middle">数値計算</text>
+  <text x="400" y="315" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#64748b" text-anchor="middle">（配列処理）</text>
+
+
+  <!-- 3. Matplotlib -->
+  <rect x="540" y="200" width="240" height="140" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  
+  <text x="660" y="245" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" font-weight="bold" fill="#2563eb" text-anchor="middle">Matplotlib</text>
+  <text x="660" y="285" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="18" fill="#334155" text-anchor="middle">グラフ作成</text>
+  <text x="660" y="315" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="15" fill="#64748b" text-anchor="middle">（データの可視化）</text>
+
+</svg>

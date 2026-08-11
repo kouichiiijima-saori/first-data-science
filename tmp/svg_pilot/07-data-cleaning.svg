@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+    <marker id="arrow-warn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ea580c" />
+    </marker>
+  </defs>
+  <rect width="800" height="1200" fill="#ffffff" />
+
+  <!-- Before Section -->
+  <text x="400" y="60" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">前処理前（不備のあるデータ）</text>
+
+  <rect x="150" y="100" width="360" height="360" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  <rect x="150" y="100" width="360" height="60" fill="#f1f5f9" />
+  <line x1="150" y1="160" x2="510" y2="160" stroke="#e2e8f0" stroke-width="4" />
+  <line x1="150" y1="220" x2="510" y2="220" stroke="#e2e8f0" stroke-width="2" />
+  <line x1="150" y1="280" x2="510" y2="280" stroke="#e2e8f0" stroke-width="2" />
+  <line x1="150" y1="340" x2="510" y2="340" stroke="#e2e8f0" stroke-width="2" />
+  <line x1="150" y1="400" x2="510" y2="400" stroke="#e2e8f0" stroke-width="2" />
+  <line x1="330" y1="100" x2="330" y2="460" stroke="#e2e8f0" stroke-width="4" />
+
+  <text x="240" y="142" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">氏名</text>
+  <text x="420" y="142" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">年齢</text>
+
+  <text x="240" y="202" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">田中</text>
+  <text x="420" y="202" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">25</text>
+
+  <text x="240" y="262" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">佐藤</text>
+  <text x="420" y="262" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#ea580c" text-anchor="middle">空欄</text>
+
+  <text x="240" y="322" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">鈴木</text>
+  <text x="420" y="322" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">30</text>
+
+  <text x="240" y="382" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">高橋</text>
+  <text x="420" y="382" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#ea580c" text-anchor="middle">三十</text>
+
+  <text x="240" y="442" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">田中</text>
+  <text x="420" y="442" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">25</text>
+
+  <!-- Annotations Before -->
+  <text x="590" y="262" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#ea580c" text-anchor="start">欠損値</text>
+  <line x1="580" y1="250" x2="520" y2="250" stroke="#ea580c" stroke-width="4" marker-end="url(#arrow-warn)" />
+
+  <text x="590" y="382" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#ea580c" text-anchor="start">表記揺れ</text>
+  <line x1="580" y1="370" x2="520" y2="370" stroke="#ea580c" stroke-width="4" marker-end="url(#arrow-warn)" />
+
+  <text x="590" y="442" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#ea580c" text-anchor="start">重複データ</text>
+  <line x1="580" y1="430" x2="520" y2="430" stroke="#ea580c" stroke-width="4" marker-end="url(#arrow-warn)" />
+
+
+  <!-- Flow Arrow -->
+  <line x1="400" y1="520" x2="400" y2="580" stroke="#2563eb" stroke-width="6" marker-end="url(#arrow)" />
+
+
+  <!-- After Section -->
+  <text x="400" y="640" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">前処理後（整頓済みデータ）</text>
+
+  <rect x="220" y="680" width="360" height="240" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  <rect x="220" y="680" width="360" height="60" fill="#f1f5f9" />
+  <line x1="220" y1="740" x2="580" y2="740" stroke="#e2e8f0" stroke-width="4" />
+  <line x1="220" y1="800" x2="580" y2="800" stroke="#e2e8f0" stroke-width="2" />
+  <line x1="220" y1="860" x2="580" y2="860" stroke="#e2e8f0" stroke-width="2" />
+  <line x1="400" y1="680" x2="400" y2="920" stroke="#e2e8f0" stroke-width="4" />
+
+  <text x="310" y="722" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">氏名</text>
+  <text x="490" y="722" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">年齢</text>
+
+  <text x="310" y="782" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">田中</text>
+  <text x="490" y="782" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">25</text>
+
+  <text x="310" y="842" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">鈴木</text>
+  <text x="490" y="842" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">30</text>
+
+  <text x="310" y="902" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">高橋</text>
+  <text x="490" y="902" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">30</text>
+
+  <!-- Explanation below the table -->
+  <text x="400" y="1000" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="30" font-weight="bold" fill="#334155" text-anchor="middle">今回の処理例</text>
+  
+  <text x="400" y="1060" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">・今回は欠損行（佐藤）を削除</text>
+  <text x="400" y="1110" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">・「三十」→「30」に表記を統一</text>
+  <text x="400" y="1160" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">・重複行を削除</text>
+
+</svg>

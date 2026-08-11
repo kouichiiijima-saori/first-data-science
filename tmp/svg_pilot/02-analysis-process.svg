@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="380" viewBox="0 0 800 380">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+  </defs>
+
+  <rect width="800" height="380" fill="#ffffff" />
+
+  <!-- Flow Lines -->
+  <line x1="255" y1="80" x2="285" y2="80" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+  <line x1="510" y1="80" x2="540" y2="80" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+  
+  <!-- Path from 3 to 4 -->
+  <path d="M 655 120 L 655 180 L 145 180 L 145 235" fill="none" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+  
+  <line x1="255" y1="280" x2="285" y2="280" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+  <line x1="510" y1="280" x2="540" y2="280" stroke="#2563eb" stroke-width="4" marker-end="url(#arrow)" />
+
+  <!-- Boxes -->
+  <g transform="translate(35, 40)">
+    <rect width="220" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+    <text x="110" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">1. 目的設定</text>
+  </g>
+
+  <g transform="translate(290, 40)">
+    <rect width="220" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+    <text x="110" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">2. データ収集</text>
+  </g>
+
+  <g transform="translate(545, 40)">
+    <rect width="220" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+    <text x="110" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">3. 前処理</text>
+  </g>
+
+  <g transform="translate(35, 240)">
+    <rect width="220" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+    <text x="110" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">4. 分析</text>
+  </g>
+
+  <g transform="translate(290, 240)">
+    <rect width="220" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+    <text x="110" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">5. 可視化</text>
+  </g>
+
+  <g transform="translate(545, 240)">
+    <rect width="220" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="3" />
+    <text x="110" y="50" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" font-weight="bold" fill="#334155" text-anchor="middle">6. 活用</text>
+  </g>
+</svg>
