@@ -60,9 +60,9 @@ class Admin::ArticlesController < Admin::BaseController
         @article.update!(display_order: previous_article.display_order)
         previous_article.update!(display_order: temp_order)
       end
-      redirect_to admin_articles_path, notice: "表示順を上に移動しました"
+      redirect_to admin_articles_path, status: :see_other, notice: "表示順を上に移動しました"
     else
-      redirect_to admin_articles_path, alert: "これ以上上に移動できません"
+      redirect_to admin_articles_path, status: :see_other, alert: "これ以上上に移動できません"
     end
   end
 
@@ -77,9 +77,9 @@ class Admin::ArticlesController < Admin::BaseController
         @article.update!(display_order: next_article.display_order)
         next_article.update!(display_order: temp_order)
       end
-      redirect_to admin_articles_path, notice: "表示順を下に移動しました"
+      redirect_to admin_articles_path, status: :see_other, notice: "表示順を下に移動しました"
     else
-      redirect_to admin_articles_path, alert: "これ以上下に移動できません"
+      redirect_to admin_articles_path, status: :see_other, alert: "これ以上下に移動できません"
     end
   end
 
