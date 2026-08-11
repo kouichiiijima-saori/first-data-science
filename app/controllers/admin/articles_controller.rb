@@ -55,11 +55,7 @@ class Admin::ArticlesController < Admin::BaseController
                               .first
 
     if previous_article
-      Article.transaction do
-        temp_order = @article.display_order
-        @article.update!(display_order: previous_article.display_order)
-        previous_article.update!(display_order: temp_order)
-      end
+      swap_display_order_with(previous_article)
       redirect_to admin_articles_path, status: :see_other, notice: "表示順を上に移動しました"
     else
       redirect_to admin_articles_path, status: :see_other, alert: "これ以上上に移動できません"
@@ -72,11 +68,7 @@ class Admin::ArticlesController < Admin::BaseController
                           .first
 
     if next_article
-      Article.transaction do
-        temp_order = @article.display_order
-        @article.update!(display_order: next_article.display_order)
-        next_article.update!(display_order: temp_order)
-      end
+      swap_display_order_with(next_article)
       redirect_to admin_articles_path, status: :see_other, notice: "表示順を下に移動しました"
     else
       redirect_to admin_articles_path, status: :see_other, alert: "これ以上下に移動できません"
@@ -86,6 +78,17 @@ class Admin::ArticlesController < Admin::BaseController
   private
     def set_article
       @article = Article.find(params[:id])
+    end
+
+    def swap_display_order_with(other_article)
+      Article.transaction do
+        current_order = @article.display_order
+        other_order = other_article.display_order
+        timestamp = Time.current
+
+        Article.where(id: @article.id).update_all(display_order: other_order, updated_at: timestamp)
+        Article.where(id: other_article.id).update_all(display_order: current_order, updated_at: timestamp)
+      end
     end
 
     def article_params

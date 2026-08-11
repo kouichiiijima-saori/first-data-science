@@ -32,6 +32,14 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     assert_text "記事管理"
   end
 
+  def assert_admin_titles(expected_titles)
+    assert_equal expected_titles, all("tbody tr td:nth-child(2) strong").map(&:text)
+  end
+
+  def assert_public_titles(expected_titles)
+    assert_equal expected_titles, all(".article-card-body h2").map(&:text)
+  end
+
   test "articles are ordered by display_order in admin index" do
     login_as_admin
     visit admin_articles_path
@@ -47,7 +55,7 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     assert_equal ["記事1", "記事2", "記事3"], titles
   end
 
-  test "can move article down" do
+  test "can move article down and keep order after reload" do
     login_as_admin
     visit admin_articles_path
 
@@ -56,12 +64,20 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     end
 
     assert_text "表示順を下に移動しました"
+    @article1.reload
+    @article2.reload
+    assert_equal 2, @article1.display_order
+    assert_equal 1, @article2.display_order
+    assert_admin_titles ["記事2", "記事1", "記事3"]
 
-    titles = all("tbody tr td:nth-child(2) strong").map(&:text)
-    assert_equal ["記事2", "記事1", "記事3"], titles
+    visit admin_articles_path
+    assert_admin_titles ["記事2", "記事1", "記事3"]
+
+    visit articles_path
+    assert_public_titles ["記事2", "記事1", "記事3"]
   end
 
-  test "can move article up" do
+  test "can move article up and keep order after reload" do
     login_as_admin
     visit admin_articles_path
 
@@ -70,9 +86,25 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     end
 
     assert_text "表示順を上に移動しました"
+    @article1.reload
+    @article2.reload
+    assert_equal 2, @article1.display_order
+    assert_equal 1, @article2.display_order
+    assert_admin_titles ["記事2", "記事1", "記事3"]
 
-    titles = all("tbody tr td:nth-child(2) strong").map(&:text)
-    assert_equal ["記事2", "記事1", "記事3"], titles
+    visit admin_articles_path
+    assert_admin_titles ["記事2", "記事1", "記事3"]
+
+    within "tbody tr:nth-child(1)" do
+      click_on "下へ"
+    end
+
+    assert_text "表示順を下に移動しました"
+    @article1.reload
+    @article2.reload
+    assert_equal 1, @article1.display_order
+    assert_equal 2, @article2.display_order
+    assert_admin_titles ["記事1", "記事2", "記事3"]
   end
 
   test "first article cannot be moved up and last cannot be moved down" do
