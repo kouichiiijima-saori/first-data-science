@@ -75,6 +75,39 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select "img", 0
   end
 
+
+  test "public pages do not show admin login link" do
+    get articles_path
+
+    assert_response :success
+    assert_select "a[href='#{admin_login_path}']", false
+    assert_not_includes response.body, "管理者ログイン"
+
+    get article_path(@newer_article)
+
+    assert_response :success
+    assert_select "a[href='#{admin_login_path}']", false
+    assert_not_includes response.body, "管理者ログイン"
+  end
+
+  test "show preserves rich text code blocks and safe internal sample data link" do
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<p>#{long_body}</p><p><a href="/sample-data/sales_data.csv">演習用CSV</a></p><pre onclick="alert(1)"><code style="color: red">print(&quot;hello&quot;)</code></pre><script>alert(2)</script>)
+    )
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body a[href='/sample-data/sales_data.csv']", "演習用CSV"
+    assert_select ".rich-text-body pre code", /print\("hello"\)/
+    assert_select ".rich-text-body pre[onclick]", false
+    assert_select ".rich-text-body code[style]", false
+    assert_select ".rich-text-body script", false
+    assert_not_includes response.body, "alert(1)"
+    assert_not_includes response.body, "alert(2)"
+  end
+
   test "show displays a published article without authentication" do
     get article_path(@newer_article)
 

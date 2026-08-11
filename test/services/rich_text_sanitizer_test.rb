@@ -29,6 +29,33 @@ class RichTextSanitizerTest < ActiveSupport::TestCase
     assert_not_includes sanitized, "alert(2)"
   end
 
+  test "keeps pre and code blocks without allowing attributes" do
+    html = %(<pre class="language-python" onclick="alert(1)"><code style="color: red" onmouseover="alert(2)">print(&quot;hello&quot;)
+1 &lt; 2</code></pre>)
+
+    sanitized = RichTextSanitizer.sanitize(html)
+
+    assert_includes sanitized, "<pre><code>"
+    assert_includes sanitized, %(print("hello"))
+    assert_includes sanitized, "1 &lt; 2"
+    assert_not_includes sanitized, "class="
+    assert_not_includes sanitized, "style="
+    assert_not_includes sanitized, "onclick"
+    assert_not_includes sanitized, "onmouseover"
+  end
+
+  test "keeps pre and code while removing dangerous nested html" do
+    html = %(<pre><code>safe &lt;b&gt;text&lt;/b&gt;<script>alert(1)</script><a href="javascript:alert(2)">bad link</a></code></pre>)
+
+    sanitized = RichTextSanitizer.sanitize(html)
+
+    assert_includes sanitized, "<pre><code>"
+    assert_includes sanitized, "safe &lt;b&gt;text&lt;/b&gt;"
+    assert_not_includes sanitized, "<script"
+    assert_not_includes sanitized, "alert(1)"
+    assert_not_includes sanitized, "javascript:"
+  end
+
   test "converts body h1 to h2 and keeps h2 through h4" do
     sanitized = RichTextSanitizer.sanitize("<h1>大見出し</h1><h3>中見出し</h3><h4>小見出し</h4>")
 

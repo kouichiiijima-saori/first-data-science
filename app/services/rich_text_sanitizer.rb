@@ -4,7 +4,7 @@ require "set"
 require "uri"
 
 class RichTextSanitizer
-  ALLOWED_TAGS = %w[p br h2 h3 h4 strong em u a ul ol li span img].freeze
+  ALLOWED_TAGS = %w[p br h2 h3 h4 strong em u a ul ol li span img pre code].freeze
   DROP_TAGS = %w[script style iframe object embed form input textarea select button svg math].freeze
   TEXT_FORMAT_TAG_REPLACEMENTS = {
     "b" => "strong",
