@@ -22,6 +22,8 @@ class Article < ApplicationRecord
   has_one_attached :thumbnail
   has_many_attached :body_images, dependent: :purge_later
 
+  before_create :set_default_display_order
+
   scope :published, -> { where(status: "published") }
 
   validates :title, presence: true, length: { maximum: TITLE_MAX_LENGTH }
@@ -39,6 +41,10 @@ class Article < ApplicationRecord
   end
 
   private
+    def set_default_display_order
+      self.display_order ||= (Article.maximum(:display_order) || 0) + 1
+    end
+
     def body_length
       return if body.blank?
 

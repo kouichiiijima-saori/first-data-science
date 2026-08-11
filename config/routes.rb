@@ -9,7 +9,12 @@ Rails.application.routes.draw do
     delete "logout", to: "sessions#destroy"
     post "markdown_preview", to: "markdown_previews#create"
     post "article_images", to: "article_images#create"
-    resources :articles, except: :show
+    resources :articles, except: :show do
+      member do
+        patch :move_up
+        patch :move_down
+      end
+    end
   end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

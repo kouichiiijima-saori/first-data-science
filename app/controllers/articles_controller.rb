@@ -3,7 +3,7 @@ class ArticlesController < ApplicationController
     @articles = Article.published
       .includes(:tags)
       .with_attached_thumbnail
-      .order(created_at: :desc, id: :desc)
+      .order(display_order: :asc, id: :asc)
   end
 
   def show

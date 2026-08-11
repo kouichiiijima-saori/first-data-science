@@ -1,8 +1,8 @@
 class Admin::ArticlesController < Admin::BaseController
-  before_action :set_article, only: %i[edit update destroy]
+  before_action :set_article, only: %i[edit update destroy move_up move_down]
 
   def index
-    @articles = Article.includes(:tags).order(updated_at: :desc, id: :desc)
+    @articles = Article.includes(:tags).order(display_order: :asc, id: :asc)
   end
 
   def new
@@ -46,6 +46,40 @@ class Admin::ArticlesController < Admin::BaseController
       redirect_to admin_articles_path, notice: "記事を削除しました"
     else
       redirect_to admin_articles_path, alert: "記事を削除できませんでした"
+    end
+  end
+
+  def move_up
+    previous_article = Article.where("display_order < ? OR (display_order = ? AND id < ?)", @article.display_order, @article.display_order, @article.id)
+                              .order(display_order: :desc, id: :desc)
+                              .first
+
+    if previous_article
+      Article.transaction do
+        temp_order = @article.display_order
+        @article.update!(display_order: previous_article.display_order)
+        previous_article.update!(display_order: temp_order)
+      end
+      redirect_to admin_articles_path, notice: "表示順を上に移動しました"
+    else
+      redirect_to admin_articles_path, alert: "これ以上上に移動できません"
+    end
+  end
+
+  def move_down
+    next_article = Article.where("display_order > ? OR (display_order = ? AND id > ?)", @article.display_order, @article.display_order, @article.id)
+                          .order(display_order: :asc, id: :asc)
+                          .first
+
+    if next_article
+      Article.transaction do
+        temp_order = @article.display_order
+        @article.update!(display_order: next_article.display_order)
+        next_article.update!(display_order: temp_order)
+      end
+      redirect_to admin_articles_path, notice: "表示順を下に移動しました"
+    else
+      redirect_to admin_articles_path, alert: "これ以上下に移動できません"
     end
   end
 

@@ -13,6 +13,7 @@
     <table>
       <thead>
         <tr>
+          <th style="width: 80px;">表示順</th>
           <th>タイトル</th>
           <th>公開状態</th>
           <th>タグ</th>
@@ -21,8 +22,9 @@
         </tr>
       </thead>
       <tbody>
-        <% @articles.each do |article| %>
+        <% @articles.each_with_index do |article, index| %>
           <tr>
+            <td style="text-align: center;"><%= article.display_order %></td>
             <td>
               <strong><%= article.title %></strong>
             </td>
@@ -36,7 +38,13 @@
             <td><%= article.tags.map(&:name).join(", ") %></td>
             <td><%= admin_datetime(article.updated_at) %></td>
             <td>
-              <div class="actions">
+              <div class="actions" style="display: flex; gap: 0.5rem; align-items: center;">
+                <% if index > 0 %>
+                  <%= button_to "↑ 上へ", move_up_admin_article_path(article), method: :patch, class: "btn" %>
+                <% end %>
+                <% if index < @articles.size - 1 %>
+                  <%= button_to "↓ 下へ", move_down_admin_article_path(article), method: :patch, class: "btn" %>
+                <% end %>
                 <%= link_to "編集", edit_admin_article_path(article), class: "btn" %>
                 <%= button_to "削除", admin_article_path(article), method: :delete, class: "btn btn-danger", form: { data: { turbo_confirm: "本当に削除しますか？" }, onsubmit: "return confirm('本当に削除しますか？');" } %>
               </div>
