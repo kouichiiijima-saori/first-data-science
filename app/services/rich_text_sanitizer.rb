@@ -129,32 +129,55 @@ class RichTextSanitizer
 
     def sanitize_image(node)
       src = node["src"].to_s.strip
-      unless allowed_image_src?(src)
+      normalized_src = normalized_active_storage_image_src(src)
+      unless normalized_src
         node.remove
         return
       end
 
-      node["src"] = src
+      node["src"] = normalized_src
       normalize_dimension(node, "width")
       normalize_dimension(node, "height")
     end
 
-    def allowed_image_src?(src)
+    def normalized_active_storage_image_src(src)
       blob = active_storage_blob_from_src(src)
-      return false unless blob
-      return false unless ArticleBodyImageUpload.valid_blob?(blob)
-      return true unless allowed_blob_ids
+      return nil unless blob
+      return nil unless ArticleBodyImageUpload.valid_blob?(blob)
+      return nil if allowed_blob_ids && !allowed_blob_ids.include?(blob.id)
 
-      allowed_blob_ids.include?(blob.id)
+      active_storage_path_from_src(src)
     end
 
     def active_storage_blob_from_src(src)
+      path = active_storage_path_from_src(src)
+      return nil unless path
+
+      signed_id = signed_blob_id_from_path(path)
+      return nil if signed_id.blank?
+
+      ActiveStorage::Blob.find_signed(CGI.unescape(signed_id))
+    rescue URI::InvalidURIError, ActiveSupport::MessageVerifier::InvalidSignature
+      nil
+    end
+
+    def active_storage_path_from_src(src)
       return nil if src.blank? || src.start_with?("//")
 
       uri = URI.parse(src)
-      return nil if uri.scheme.present? || uri.host.present? || uri.query.present? || uri.fragment.present?
+      return nil if uri.query.present? || uri.fragment.present?
+      return nil if uri.scheme.present? && !%w[http https].include?(uri.scheme.downcase)
 
-      segments = uri.path.to_s.split("/")
+      path = uri.path.to_s
+      return nil unless signed_blob_id_from_path(path)
+
+      path
+    rescue URI::InvalidURIError
+      nil
+    end
+
+    def signed_blob_id_from_path(path)
+      segments = path.to_s.split("/")
       return nil unless segments[1] == "rails" && segments[2] == "active_storage" && segments[3] == "blobs"
 
       signed_id = if %w[redirect proxy].include?(segments[4])
@@ -162,11 +185,7 @@ class RichTextSanitizer
       else
         segments[4]
       end
-      return nil if signed_id.blank?
-
-      ActiveStorage::Blob.find_signed(CGI.unescape(signed_id))
-    rescue URI::InvalidURIError, ActiveSupport::MessageVerifier::InvalidSignature
-      nil
+      signed_id.presence
     end
 
     def normalize_dimension(node, attribute_name)

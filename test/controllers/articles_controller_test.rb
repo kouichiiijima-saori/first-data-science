@@ -227,6 +227,28 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".rich-text-body img[src='#{image_url}'][alt='本文画像'][width='320'][height='240']"
   end
 
+  test "show renders existing rich text active storage absolute image as relative src" do
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+      filename: "body.png",
+      content_type: "image/png"
+    )
+    image_url = rails_blob_path(blob, only_path: true)
+    absolute_image_url = "http://localhost:3000#{image_url}"
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<p>#{long_body}</p><img src="#{absolute_image_url}" alt="本文画像">)
+    )
+    article.body_images.attach(blob)
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body img[src='#{image_url}'][alt='本文画像']"
+    assert_not_includes response.body, absolute_image_url
+    assert_not_includes response.body, "http://localhost:3000"
+  end
+
   test "show removes unsafe rich text html and external images" do
     article = create_article(
       editor_type: "rich_text",
