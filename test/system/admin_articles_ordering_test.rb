@@ -52,7 +52,7 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     visit admin_articles_path
 
     within "tbody tr:nth-child(1)" do
-      click_on "↓ 下へ"
+      click_on "下へ"
     end
 
     assert_text "表示順を下に移動しました"
@@ -66,7 +66,7 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     visit admin_articles_path
 
     within "tbody tr:nth-child(2)" do
-      click_on "↑ 上へ"
+      click_on "上へ"
     end
 
     assert_text "表示順を上に移動しました"
@@ -80,13 +80,13 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     visit admin_articles_path
 
     within "tbody tr:nth-child(1)" do
-      assert_no_button "↑ 上へ"
-      assert_button "↓ 下へ"
+      assert_no_button "上へ"
+      assert_button "下へ"
     end
 
     within "tbody tr:nth-child(3)" do
-      assert_button "↑ 上へ"
-      assert_no_button "↓ 下へ"
+      assert_button "上へ"
+      assert_no_button "下へ"
     end
   end
 
