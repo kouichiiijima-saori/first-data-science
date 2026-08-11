@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SVG Preview (Article Layout)</title>
+<style>
+/* ==========================================================================
+   アプリケーション (application.css) の基本変数をシミュレート
+   ========================================================================== */
+:root {
+  --primary-color: #2563eb;
+  --primary-hover: #1d4ed8;
+  --text-color: #334155;
+  --text-muted: #64748b;
+  --bg-color: #f8fafc;
+  --border-color: #e2e8f0;
+  --container-width: 800px;
+  --code-bg: #1e293b;
+  --code-text: #f8fafc;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: var(--text-color);
+  background-color: var(--bg-color); /* 全体背景 */
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   プレビュー用ヘッダー
+   ========================================================================== */
+.preview-header {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+.preview-header h1 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-color);
+}
+.preview-header p {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   実際の記事レイアウト (.site-main) を再現
+   ========================================================================== */
+.site-main {
+  flex: 1;
+  max-width: var(--container-width); /* 800px */
+  margin: 0 auto 3rem auto;
+  padding: 2rem 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  background-color: #ffffff; /* 記事本文部分の背景は白 */
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+/* モバイル用コンテナ（390px幅に制限） */
+.site-main-mobile {
+  max-width: 390px;
+}
+
+/* ==========================================================================
+   実際のMarkdown本文 (.markdown-body) を再現
+   ========================================================================== */
+.markdown-body {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-color);
+  word-wrap: break-word;
+}
+.markdown-body h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--primary-color);
+  padding-left: 0.5rem;
+}
+.markdown-body p {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+.markdown-body img {
+  max-width: 100%;
+  box-sizing: content-box;
+  background-color: #ffffff;
+  height: auto;
+  display: block;
+  margin: 2rem 0;
+  border: 1px dashed var(--border-color); /* プレビュー用：画像の境界線を可視化 */
+}
+</style>
+</head>
+<body>
+
+  <div class="preview-header">
+    <h1>SVG レスポンシブ表示確認プレビュー</h1>
+    <p>実際の記事本文のレイアウト・余白・背景（.site-main, .markdown-body）をシミュレートしています。<br>このHTMLは安全な一時ファイルであり、本番環境やデータベースには一切影響しません。</p>
+  </div>
+
+  <h2 style="text-align:center;">🖥️ PC表示シミュレート (最大800px)</h2>
+  <div class="site-main">
+    <div class="markdown-body">
+      <h3>記事1: 身近なデータ活用例</h3>
+      <p>データサイエンスがどのように身近なサービスに活かされているかを示しています。</p>
+      <img src="01-data-use-cases.svg" alt="01-data-use-cases">
+
+      <h3>記事2: データ分析の6ステップ</h3>
+      <p>SVGの intrinsic size は `width="800"` となっているため、これ以上は拡大されず綺麗に収まります。</p>
+      <img src="02-analysis-process.svg" alt="02-analysis-process">
+      
+      <h3>記事3: Python主要ライブラリ</h3>
+      <p>各ライブラリの役割をマップとして示しています。</p>
+      <img src="03-python-libraries.svg" alt="03-python-libraries">
+
+      <h3>記事4: 変数とデータ型</h3>
+      <p>変数の箱の比喩と、実際の値、そして実際のコード（price = 1500）が矛盾なく表示されています。</p>
+      <img src="04-variables-and-types.svg" alt="04-variables-and-types">
+
+      <h3>記事5: リストと辞書の比較</h3>
+      <p>リスト（順番）と辞書（キーと値）の違いを視覚化しています。上下レイアウトを採用しました。</p>
+      <img src="05-list-vs-dictionary.svg" alt="05-list-vs-dictionary">
+
+      <h3>記事6: CSVから表形式への変換</h3>
+      <p>カンマ区切りのテキストデータが、行と列を持つ表構造へマッピングされる様子を示しています。</p>
+      <img src="06-csv-to-table.svg" alt="06-csv-to-table">
+
+      <h3>記事7: データクリーニング（前処理）</h3>
+      <p>欠損値、表記揺れ、重複データがどのように処理されるかを示しています。</p>
+      <img src="07-data-cleaning.svg" alt="07-data-cleaning">
+
+      <h3>記事8: 外れ値が平均値・中央値に与える影響</h3>
+      <p>数直線を使い、外れ値がある場合に平均値が大きく引っ張られる様子を視覚化しています。</p>
+      <img src="08-outliers-effect.svg" alt="08-outliers-effect">
+
+      <h3>記事9: 4大グラフの用途比較</h3>
+      <p>棒グラフ、折れ線グラフ、散布図、ヒストグラムの用途と模式図です。</p>
+      <img src="09-four-charts.svg" alt="09-four-charts">
+
+      <h3>記事10: 今回の総合演習の流れ</h3>
+      <p>記事2の一般的なフローとは異なり、今回の実践演習の手順を示しています。</p>
+      <img src="10-exercise-flow.svg" alt="10-exercise-flow">
+    </div>
+  </div>
+
+  <h2 style="text-align:center;">📱 スマートフォン表示シミュレート (画面幅390px想定)</h2>
+  <div class="site-main site-main-mobile">
+    <div class="markdown-body">
+      <h3>記事1: 身近なデータ活用例</h3>
+      <p>縦長の3段構成により、スマホでも文字が十分に大きく保たれます。</p>
+      <img src="01-data-use-cases.svg" alt="01-data-use-cases">
+
+      <h3>記事2: データ分析の6ステップ</h3>
+      <p>文字サイズは縮小されますが、元サイズを `28px` としているため、スマホ幅でも十分に視認可能です。折り返しレイアウトにより順序も誤解されません。</p>
+      <img src="02-analysis-process.svg" alt="02-analysis-process">
+      
+      <h3>記事3: Python主要ライブラリ</h3>
+      <p>横に並べず縦に並べることで、ライブラリ名と説明文がスマホでもはっきり読めます。</p>
+      <img src="03-python-libraries.svg" alt="03-python-libraries">
+
+      <h3>記事4: 変数とデータ型</h3>
+      <p>こちらも元サイズ `26px〜40px` を確保しているため、各種データ型の名称や値がスマホ実機相当でもはっきりと読める状態です。</p>
+      <img src="04-variables-and-types.svg" alt="04-variables-and-types">
+
+      <h3>記事5: リストと辞書の比較</h3>
+      <p>PC表示と同じく、上下レイアウトによって文字が十分な大きさを保ち、コード記号も読みやすい状態です。</p>
+      <img src="05-list-vs-dictionary.svg" alt="05-list-vs-dictionary">
+
+      <h3>記事6: CSVから表形式への変換</h3>
+      <p>カンマや文字がはっきりと読めるサイズを確保しています。</p>
+      <img src="06-csv-to-table.svg" alt="06-csv-to-table">
+
+      <h3>記事7: データクリーニング（前処理）</h3>
+      <p>問題箇所の強調（オレンジ色）と文字の大きさが連動し、スマホでも見落とさず理解できます。</p>
+      <img src="07-data-cleaning.svg" alt="07-data-cleaning">
+
+      <h3>記事8: 外れ値が平均値・中央値に与える影響</h3>
+      <p>平均・中央値の注釈文字や数直線のドットが、スマホ実機表示でも十分に視認可能です。</p>
+      <img src="08-outliers-effect.svg" alt="08-outliers-effect">
+
+      <h3>記事9: 4大グラフの用途比較</h3>
+      <p>横2列ではなく縦4段を採用したことで、グラフ名や模式図がスマホでもつぶれません。</p>
+      <img src="09-four-charts.svg" alt="09-four-charts">
+
+      <h3>記事10: 今回の総合演習の流れ</h3>
+      <p>記事2と同じく縦方向フローを採用しており、スマホでも無理なく読めます。</p>
+      <img src="10-exercise-flow.svg" alt="10-exercise-flow">
+    </div>
+  </div>
+
+</body>
+</html>
