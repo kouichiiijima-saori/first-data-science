@@ -43,16 +43,16 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
   test "articles are ordered by display_order in admin index" do
     login_as_admin
     visit admin_articles_path
-    
+
     titles = all("tbody tr td:nth-child(2) strong").map(&:text)
-    assert_equal ["記事1", "記事2", "記事3"], titles
+    assert_equal [ "記事1", "記事2", "記事3" ], titles
   end
 
   test "articles are ordered by display_order in public index" do
     visit articles_path
-    
+
     titles = all(".article-card-body h2").map(&:text)
-    assert_equal ["記事1", "記事2", "記事3"], titles
+    assert_equal [ "記事1", "記事2", "記事3" ], titles
   end
 
   test "can move article down and keep order after reload" do
@@ -68,13 +68,13 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     @article2.reload
     assert_equal 2, @article1.display_order
     assert_equal 1, @article2.display_order
-    assert_admin_titles ["記事2", "記事1", "記事3"]
+    assert_admin_titles [ "記事2", "記事1", "記事3" ]
 
     visit admin_articles_path
-    assert_admin_titles ["記事2", "記事1", "記事3"]
+    assert_admin_titles [ "記事2", "記事1", "記事3" ]
 
     visit articles_path
-    assert_public_titles ["記事2", "記事1", "記事3"]
+    assert_public_titles [ "記事2", "記事1", "記事3" ]
   end
 
   test "can move article up and keep order after reload" do
@@ -90,10 +90,10 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     @article2.reload
     assert_equal 2, @article1.display_order
     assert_equal 1, @article2.display_order
-    assert_admin_titles ["記事2", "記事1", "記事3"]
+    assert_admin_titles [ "記事2", "記事1", "記事3" ]
 
     visit admin_articles_path
-    assert_admin_titles ["記事2", "記事1", "記事3"]
+    assert_admin_titles [ "記事2", "記事1", "記事3" ]
 
     within "tbody tr:nth-child(1)" do
       click_on "下へ"
@@ -104,7 +104,7 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     @article2.reload
     assert_equal 1, @article1.display_order
     assert_equal 2, @article2.display_order
-    assert_admin_titles ["記事1", "記事2", "記事3"]
+    assert_admin_titles [ "記事1", "記事2", "記事3" ]
   end
 
   test "first article cannot be moved up and last cannot be moved down" do
@@ -130,13 +130,13 @@ class AdminArticlesOrderingTest < ApplicationSystemTestCase
     fill_in "タイトル", with: "新規記事4"
     fill_in "概要", with: "Summary 4"
     fill_in "本文 (Markdown)", with: "Body 4 content with enough length to pass validations. " * 10
-    
+
     click_on "保存する"
 
     assert_text "記事を作成しました"
 
     titles = all("tbody tr td:nth-child(2) strong").map(&:text)
-    assert_equal ["記事1", "記事2", "記事3", "新規記事4"], titles
+    assert_equal [ "記事1", "記事2", "記事3", "新規記事4" ], titles
 
     new_article = Article.find_by(title: "新規記事4")
     assert_equal 4, new_article.display_order

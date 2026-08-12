@@ -54,11 +54,22 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".empty-articles", "公開中の記事はありません。"
   end
 
-  test "index orders articles by created_at descending" do
+  test "index orders articles by display_order ascending and id ascending" do
+    tied_article = create_article(
+      title: "同順の公開記事",
+      summary: "同じ表示順の記事の概要",
+      status: "published",
+      display_order: 1,
+      created_at: Time.current
+    )
+    @newer_article.update!(display_order: 1)
+    @older_article.update!(display_order: 2)
+
     get articles_path
 
     assert_response :success
-    assert response.body.index(@newer_article.title) < response.body.index(@older_article.title)
+    assert response.body.index(@newer_article.title) < response.body.index(tied_article.title)
+    assert response.body.index(tied_article.title) < response.body.index(@older_article.title)
   end
 
   test "index shows tags" do
