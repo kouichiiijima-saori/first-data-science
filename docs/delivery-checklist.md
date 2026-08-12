@@ -1,81 +1,132 @@
-# 納品前チェックリスト
+# Delivery Checklist
 
-本ドキュメントは、「はじめてのデータサイエンス」記事編集機能（Task 1〜6）の納品および運用移管に向けた動作・環境・動作確認項目の最終チェックリストです。
+## 基準日時
 
----
+- 納品基準日時: 2026/08/13 12:00 JST
+- この日時以降に納品可否を判断する場合も、ドキュメント上の完成基準日時は上記に統一する。
+- Git commit 日時や既存ファイルの mtime は納品基準日時に合わせて書き換えない。
 
-## 1. 動作環境・バージョン情報
+## Repository Gate
 
-| 項目 | 動作仕様 / バージョン | 確認結果 |
-| :--- | :--- | :---: |
-| OS | Ubuntu 24.04 (WSL2 / Linux) | ✅ |
-| Ruby | 3.4.10 | ✅ |
-| Rails | 8.1.3 | ✅ |
-| MySQL | 8.0.46 | ✅ |
-| Bundler | 2.6.9 | ✅ |
-| Jodit | 4.8.10 (Vendor管理: `vendor/javascript/jodit/`) | ✅ |
+- [ ] `main` branch である
+- [ ] `origin/main` と同期済みである
+- [ ] working tree が clean である
+- [ ] 不要な作業 branch が残っていない
+- [ ] Dependabot 等の不要 branch が整理済みである
+- [ ] push 前提の未 commit 変更がない
 
----
+## CI / Quality Gate
 
-## 2. セットアップ・コマンド検証
+以下がすべて PASS していること。
 
-| 検証コマンド / 手順 | 概要 | 結果 |
-| :--- | :--- | :---: |
-| `bin/setup --skip-server` | 依存関係およびDBの初期化 | ✅ PASSED |
-| `bin/rails db:prepare` | マイグレーション適用 | ✅ PASSED |
-| `bin/rails db:seed` | 初期管理者ユーザーの安全登録 | ✅ PASSED |
-| `bin/rails test` | 単体・結合テスト全件実行 (236 runs) | ✅ 0 Failures |
-| `bin/rails test:system` | システムテスト（ブラウザ統合テスト）全件実行 (26 runs) | ✅ 0 Failures |
-| `bin/rails zeitwerk:check` | Zeitwerkオートロード定義の検証 | ✅ ALL CLEAR |
-| `bin/rubocop` | Rubyコードスタイル検証 | ✅ 0 Offenses |
-| `bin/brakeman --quiet --no-pager` | 静的セキュリティ診断 | ✅ 0 Warnings |
-| `bin/bundler-audit` | Gem依存関係脆弱性診断 | ✅ 0 Vulnerabilities |
-| `bin/importmap audit` | JavaScript依存関係脆弱性診断 | ✅ 0 Vulnerabilities |
-| `bin/ci` | 一括CIパイプライン実行 | ✅ SUCCESS |
-| `RAILS_ENV=production assets:precompile` | 本番用アセットビルド検証 | ✅ SUCCESS |
-| `git diff --check` | 空白行・コンフリクトマーカーチェック | ✅ CLEARED |
+```bash
+bin/rubocop -f github
+bin/bundler-audit
+bin/rails db:test:prepare test
+bin/rails test:system
+```
 
----
+確認項目:
 
-## 3. 機能要件・動作確認チェックリスト
+- [ ] RuboCop PASS
+- [ ] bundler-audit PASS
+- [ ] Rails unit / controller / integration tests PASS
+- [ ] system tests PASS
+- [ ] 新規脆弱性なし
+- [ ] Rails / Active Storage 8.1.3.1
+- [ ] json 2.21.2
+- [ ] libvips 8.13 以上
 
-### 3.1 記事管理・エディタ機能
-- [x] **Markdown記事編集**: Markdown文章の入力、Preview実行、エディタ初期化なし
-- [x] **リッチテキスト記事編集**: Joditエディタ初期化、見出し(H2-H4)、段落、太字、斜体、下線、文字色(6色)、文字サイズ(4種)、リンク設定
-- [x] **編集方式の固定**: 保存済み記事での `editor_type` 変更不可の防御策
-- [x] **本文画像挿入・リサイズ**: Active Storage Blob 挿入、表示 `width`/`height` 設定、ドラッグリサイズ、再編集復元
-- [x] **サムネイル設定**: 記事サムネイルの登録・変更・表示
+## Article / Content Gate
 
-### 3.2 セキュリティ・HTML Sanitizer
-- [x] **XSS対策**: `script`, `iframe`, `object`, `svg`, `event handler (on*)` の全除去
-- [x] **リンク保護**: `javascript:`, `data:` 等の不正スキーマ除去、`target="_blank"` 時の `rel="noopener noreferrer"` 強制
-- [x] **画像セキュリティ**: 他記事の Blob 画像および非許可外部画像・Base64・SVG の排除
-- [x] **認証・認可**: 非ログインユーザーの `/admin` アクセス拒否、CSRF トークン検証
+- [ ] 記事 1〜10 が存在する
+- [ ] 記事 1〜10 が published である
+- [ ] `display_order` が 1〜10 である
+- [ ] 公開 `/articles` が `display_order ASC, id ASC` で表示される
+- [ ] 管理画面の記事一覧が `display_order ASC, id ASC` で表示される
+- [ ] 記事 1〜5 が Markdown として表示される
+- [ ] 記事 6〜10 が Rich Text / Jodit HTML として表示される
+- [ ] 記事 10 に未使用画像 `10-exercise-flow.png` を本文へ勝手に追加していない
 
-### 3.3 表示・レスポンシブ性
-- [x] **PC / Tablet / Mobile (390px)**: 管理画面および一般公開画面での崩れ防止、`max-width: 100%`, `overflow-wrap: anywhere` 適用
-- [x] **下書き制御**: `draft` 記事の一般公開非表示 (404)
+## Image / Active Storage Gate
 
----
+seed 画像正本:
 
-## 4. バックアップ対象・環境設定・未対応事項
+- `docs/assets/articles/01-data-use-cases.png`
+- `docs/assets/articles/02-analysis-process.png`
+- `docs/assets/articles/03-python-libraries.png`
+- `docs/assets/articles/04-variables-and-types.png`
+- `docs/assets/articles/05-list-vs-dictionary.png`
+- `docs/assets/articles/06-csv-to-table.png`
+- `docs/assets/articles/07-data-cleaning.png`
+- `docs/assets/articles/08-outliers-effect.png`
+- `docs/assets/articles/09-four-charts.png`
+- `docs/assets/articles/10-exercise-flow.png`（正本として保持。現状本文未使用）
 
-### 4.1 バックアップ対象データ
-- DB（MySQL）: `articles`, `tags`, `article_tags`, `admins`, `active_storage_blobs`, `active_storage_attachments`
-- ストレージ（Active Storage）: `storage/` ディレクトリ配下のファイル群
+確認項目:
 
-### 4.2 本番構築・環境変数
-- `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_PASSWORD`: 初回 seed 時の管理者アカウント生成用
-- `SECRET_KEY_BASE`: Rails暗号化キー
+- [ ] 記事 1〜5 の thumbnail が表示される
+- [ ] 記事 6〜9 の本文画像が表示される
+- [ ] Rich Text 本文内の画像位置が完成 Baseline と一致する
+- [ ] seed 後に作成された blob の SHA256 が `docs/assets/articles/*.png` と一致する
+- [ ] development 環境の signed_id / blob ID / attachment ID / host / secret 依存値を納品物に含めていない
+- [ ] development `storage/` を納品しない
+- [ ] 不要 blob を納品しない
 
-### 4.3 現時点の未対応事項（将来の運用保守課題）
-1. **Production Storage**: 現在はローカルディスクストレージ設定。本番インフラ構築時にS3等の外部ストレージ決定が必要。
-2. **Orphan Blob / 本文削除画像 Cleanup**: `ArticleBodyImageSynchronizer`（本文削除画像の detach & purge）および `OrphanActiveStorageBlobCleanup` / `bin/rails article_body_images:cleanup_orphans`（未保存 Orphan Blob 7日後 safe purge & dry-run）が実装済み。
-3. **画像編集機能**: トリミング、回転、反転、画像自体の物理的圧縮・リサイズは本Scope外。
+## Seed Rebuild Gate
 
----
+clean 環境または disposable DB で以下を確認する。
 
-## 5. 納品・Gitステータス
+```bash
+bin/rails db:drop db:create db:migrate db:seed
+bin/rails db:seed
+```
 
-- **Git Status**: `working tree clean`
-- **Push指定**: ローカル環境にて検証完了（リモートへの push は指示に基づき非実施）
+確認項目:
+
+- [ ] 空 DB から migration が成功する
+- [ ] 空 DB から seed が成功する
+- [ ] 初期管理者が環境変数指定時に作成される
+- [ ] 記事 1〜10 が seed で再構築される
+- [ ] 2 回目の seed で既存記事を上書きしない
+- [ ] seed 後の本文が完成 Baseline と実質一致する
+- [ ] seed 後の画像 filename / 画像位置が完成 Baseline と一致する
+- [ ] seed 後に不要な unattached blob が作成されない
+
+## Security / Exclusion Gate
+
+納品 ZIP に以下を含めない。
+
+- [ ] `.git/`
+- [ ] `.env`
+- [ ] `config/master.key`
+- [ ] credentials 復号鍵
+- [ ] API key / password / token
+- [ ] development DB / test DB / DB dump
+- [ ] development `storage/`
+- [ ] `tmp/`
+- [ ] `log/`
+- [ ] ローカルパスや個人情報を含む設定
+- [ ] CI 一時生成物
+- [ ] テスト生成物
+
+## Minimal Delivery Package Gate
+
+推奨する納品方式:
+
+- アプリケーションコード一式
+- `Gemfile` / `Gemfile.lock`
+- `config/`（秘密鍵を除く）
+- `db/`（migration と正式 seed を含む）
+- `docs/articles/`
+- `docs/assets/articles/`
+- README / delivery checklist
+- `storage/` は含めない
+- 顧客環境で seed により Active Storage blob を再作成する
+
+納品 ZIP 作成前に確認すること。
+
+- [ ] ZIP 内容を展開して目視確認した
+- [ ] README 通りに第三者が起動できる
+- [ ] clean 環境から記事 1〜10 と画像を再現できる
+- [ ] 不要ファイル・秘密情報が含まれていない
