@@ -13,18 +13,20 @@
     <table>
       <thead>
         <tr>
-          <th>タイトル</th>
-          <th>公開状態</th>
+          <th style="width: 60px; text-align: center;">表示順</th>
+          <th style="width: 35%;">タイトル</th>
+          <th style="width: 100px;">公開状態</th>
           <th>タグ</th>
-          <th>更新日時</th>
-          <th style="width: 150px;">操作</th>
+          <th style="width: 120px;">更新日時</th>
+          <th style="width: 140px; text-align: center;">操作</th>
         </tr>
       </thead>
       <tbody>
-        <% @articles.each do |article| %>
+        <% @articles.each_with_index do |article, index| %>
           <tr>
+            <td style="text-align: center; font-weight: bold; color: var(--text-muted);"><%= article.display_order %></td>
             <td>
-              <strong><%= article.title %></strong>
+              <strong style="font-size: 1.05rem;"><%= article.title %></strong>
             </td>
             <td>
               <% if article.status == "published" %>
@@ -33,12 +35,30 @@
                 <span class="status-badge status-draft">下書き</span>
               <% end %>
             </td>
-            <td><%= article.tags.map(&:name).join(", ") %></td>
-            <td><%= admin_datetime(article.updated_at) %></td>
             <td>
-              <div class="actions">
-                <%= link_to "編集", edit_admin_article_path(article), class: "btn" %>
-                <%= button_to "削除", admin_article_path(article), method: :delete, class: "btn btn-danger", form: { data: { turbo_confirm: "本当に削除しますか？" }, onsubmit: "return confirm('本当に削除しますか？');" } %>
+              <div class="tag-list">
+                <% article.tags.each do |tag| %>
+                  <span class="tag-chip"><%= tag.name %></span>
+                <% end %>
+              </div>
+            </td>
+            <td style="color: var(--text-muted); font-size: 0.875rem;"><%= admin_datetime(article.updated_at) %></td>
+            <td>
+              <div class="actions" style="display: flex; gap: 0.25rem; align-items: center; justify-content: center;">
+                <div class="order-actions" style="display: flex; flex-direction: column; gap: 2px; margin-right: 0.25rem;">
+                  <% if index > 0 %>
+                    <%= button_to "▲", move_up_admin_article_path(article), method: :patch, class: "btn btn-icon", title: "上へ" %>
+                  <% else %>
+                    <button class="btn btn-icon" disabled style="opacity: 0; pointer-events: none;">▲</button>
+                  <% end %>
+                  <% if index < @articles.size - 1 %>
+                    <%= button_to "▼", move_down_admin_article_path(article), method: :patch, class: "btn btn-icon", title: "下へ" %>
+                  <% else %>
+                    <button class="btn btn-icon" disabled style="opacity: 0; pointer-events: none;">▼</button>
+                  <% end %>
+                </div>
+                <%= link_to "編集", edit_admin_article_path(article), class: "btn btn-sm" %>
+                <%= button_to "削除", admin_article_path(article), method: :delete, class: "btn btn-sm btn-danger", form: { data: { turbo_confirm: "本当に削除しますか？" }, onsubmit: "return confirm('本当に削除しますか？');" } %>
               </div>
             </td>
           </tr>

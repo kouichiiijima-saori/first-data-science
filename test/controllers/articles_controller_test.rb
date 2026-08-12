@@ -54,11 +54,22 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
     assert_select ".empty-articles", "公開中の記事はありません。"
   end
 
-  test "index orders articles by created_at descending" do
+  test "index orders articles by display_order ascending and id ascending" do
+    tied_article = create_article(
+      title: "同順の公開記事",
+      summary: "同じ表示順の記事の概要",
+      status: "published",
+      display_order: 1,
+      created_at: Time.current
+    )
+    @newer_article.update!(display_order: 1)
+    @older_article.update!(display_order: 2)
+
     get articles_path
 
     assert_response :success
-    assert response.body.index(@newer_article.title) < response.body.index(@older_article.title)
+    assert response.body.index(@newer_article.title) < response.body.index(tied_article.title)
+    assert response.body.index(tied_article.title) < response.body.index(@older_article.title)
   end
 
   test "index shows tags" do
@@ -73,6 +84,39 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "img", 0
+  end
+
+
+  test "public pages do not show admin login link" do
+    get articles_path
+
+    assert_response :success
+    assert_select "a[href='#{admin_login_path}']", false
+    assert_not_includes response.body, "管理者ログイン"
+
+    get article_path(@newer_article)
+
+    assert_response :success
+    assert_select "a[href='#{admin_login_path}']", false
+    assert_not_includes response.body, "管理者ログイン"
+  end
+
+  test "show preserves rich text code blocks and safe internal sample data link" do
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<p>#{long_body}</p><p><a href="/sample-data/sales_data.csv">演習用CSV</a></p><pre onclick="alert(1)"><code style="color: red">print(&quot;hello&quot;)</code></pre><script>alert(2)</script>)
+    )
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body a[href='/sample-data/sales_data.csv']", "演習用CSV"
+    assert_select ".rich-text-body pre code", /print\("hello"\)/
+    assert_select ".rich-text-body pre[onclick]", false
+    assert_select ".rich-text-body code[style]", false
+    assert_select ".rich-text-body script", false
+    assert_not_includes response.body, "alert(1)"
+    assert_not_includes response.body, "alert(2)"
   end
 
   test "show displays a published article without authentication" do
@@ -192,6 +236,28 @@ class ArticlesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".rich-text-body img[src='#{image_url}'][alt='本文画像'][width='320'][height='240']"
+  end
+
+  test "show renders existing rich text active storage absolute image as relative src" do
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: File.open(Rails.root.join("test/fixtures/files/sample.png")),
+      filename: "body.png",
+      content_type: "image/png"
+    )
+    image_url = rails_blob_path(blob, only_path: true)
+    absolute_image_url = "http://localhost:3000#{image_url}"
+    article = create_article(
+      editor_type: "rich_text",
+      body: %(<p>#{long_body}</p><img src="#{absolute_image_url}" alt="本文画像">)
+    )
+    article.body_images.attach(blob)
+
+    get article_path(article)
+
+    assert_response :success
+    assert_select ".rich-text-body img[src='#{image_url}'][alt='本文画像']"
+    assert_not_includes response.body, absolute_image_url
+    assert_not_includes response.body, "http://localhost:3000"
   end
 
   test "show removes unsafe rich text html and external images" do

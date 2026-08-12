@@ -29,6 +29,33 @@ class RichTextSanitizerTest < ActiveSupport::TestCase
     assert_not_includes sanitized, "alert(2)"
   end
 
+  test "keeps pre and code blocks without allowing attributes" do
+    html = %(<pre class="language-python" onclick="alert(1)"><code style="color: red" onmouseover="alert(2)">print(&quot;hello&quot;)
+1 &lt; 2</code></pre>)
+
+    sanitized = RichTextSanitizer.sanitize(html)
+
+    assert_includes sanitized, "<pre><code>"
+    assert_includes sanitized, %(print("hello"))
+    assert_includes sanitized, "1 &lt; 2"
+    assert_not_includes sanitized, "class="
+    assert_not_includes sanitized, "style="
+    assert_not_includes sanitized, "onclick"
+    assert_not_includes sanitized, "onmouseover"
+  end
+
+  test "keeps pre and code while removing dangerous nested html" do
+    html = %(<pre><code>safe &lt;b&gt;text&lt;/b&gt;<script>alert(1)</script><a href="javascript:alert(2)">bad link</a></code></pre>)
+
+    sanitized = RichTextSanitizer.sanitize(html)
+
+    assert_includes sanitized, "<pre><code>"
+    assert_includes sanitized, "safe &lt;b&gt;text&lt;/b&gt;"
+    assert_not_includes sanitized, "<script"
+    assert_not_includes sanitized, "alert(1)"
+    assert_not_includes sanitized, "javascript:"
+  end
+
   test "converts body h1 to h2 and keeps h2 through h4" do
     sanitized = RichTextSanitizer.sanitize("<h1>大見出し</h1><h3>中見出し</h3><h4>小見出し</h4>")
 
@@ -84,11 +111,25 @@ class RichTextSanitizerTest < ActiveSupport::TestCase
     assert_includes sanitized, %(height="240")
   end
 
+  test "keeps absolute active storage image for allowed blob and normalizes src" do
+    blob = create_blob("sample.png", "image/png")
+    relative_url = rails_blob_path(blob, only_path: true)
+    absolute_url = "http://localhost:3000#{relative_url}"
+
+    sanitized = RichTextSanitizer.sanitize(%(<img src="#{absolute_url}" alt="本文画像">), allowed_blob_ids: [ blob.id ])
+
+    assert_includes sanitized, %(src="#{relative_url}")
+    assert_includes sanitized, %(alt="本文画像")
+    assert_not_includes sanitized, absolute_url
+    assert_not_includes sanitized, "http://localhost:3000"
+  end
+
   test "removes images with external data or unowned active storage urls" do
     allowed_blob = create_blob("sample.png", "image/png")
     other_blob = create_blob("sample.jpg", "image/jpeg")
     other_url = rails_blob_path(other_blob, only_path: true)
-    html = %(<img src="https://example.com/image.png"><img src="data:image/png;base64,AAA"><img src="#{other_url}">)
+    other_absolute_url = "http://localhost:3000#{other_url}"
+    html = %(<img src="https://example.com/image.png"><img src="data:image/png;base64,AAA"><img src="#{other_url}"><img src="#{other_absolute_url}">)
 
     sanitized = RichTextSanitizer.sanitize(html, allowed_blob_ids: [ allowed_blob.id ])
 
@@ -96,6 +137,7 @@ class RichTextSanitizerTest < ActiveSupport::TestCase
     assert_not_includes sanitized, "https://example.com"
     assert_not_includes sanitized, "data:image"
     assert_not_includes sanitized, other_url
+    assert_not_includes sanitized, other_absolute_url
   end
 
   test "removes invalid image dimensions and image styles" do

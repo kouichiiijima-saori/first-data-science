@@ -85,6 +85,10 @@ class AdminArticleEditorTypesTest < ApplicationSystemTestCase
     assert_equal "rich_text", article.editor_type
     assert article.body_images.attached?
     assert_includes article.body, "/rails/active_storage/blobs/"
+    assert_no_match %r{https?://[^"]*/rails/active_storage/blobs/}, article.body
+
+    visit article_path(article)
+    assert_selector ".rich-text-body img[src*='/rails/active_storage/blobs/']"
 
     visit edit_admin_article_path(article)
     assert_rich_text_editor_ready

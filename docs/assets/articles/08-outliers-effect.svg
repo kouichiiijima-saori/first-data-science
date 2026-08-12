@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1060" viewBox="0 0 800 1060">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+    <marker id="arrow-warn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ea580c" />
+    </marker>
+  </defs>
+  <rect width="800" height="1060" fill="#ffffff" />
+
+  <!-- Normal Data Section -->
+  <text x="400" y="60" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">通常データの場合</text>
+  
+  <rect x="180" y="100" width="440" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="4" />
+  <text x="400" y="152" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, monospace, sans-serif" font-size="36" fill="#334155" text-anchor="middle">[ 10, 11, 12, 13, 14 ]</text>
+
+  <!-- Number line (auxiliary) -->
+  <line x1="180" y1="210" x2="620" y2="210" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round" />
+  <!-- Dots grouped at the left (180 to 228) -->
+  <circle cx="180" cy="210" r="8" fill="#64748b" opacity="0.9" />
+  <circle cx="192" cy="210" r="8" fill="#64748b" opacity="0.9" />
+  <circle cx="204" cy="210" r="8" fill="#2563eb" opacity="0.9" />
+  <circle cx="216" cy="210" r="8" fill="#64748b" opacity="0.9" />
+  <circle cx="228" cy="210" r="8" fill="#64748b" opacity="0.9" />
+
+  <!-- Summary Cards Normal -->
+  <rect x="120" y="250" width="260" height="110" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  <text x="250" y="295" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">平均値</text>
+  <text x="250" y="340" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="40" font-weight="bold" fill="#334155" text-anchor="middle">12</text>
+
+  <rect x="420" y="250" width="260" height="110" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  <text x="550" y="295" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">中央値</text>
+  <text x="550" y="340" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="40" font-weight="bold" fill="#334155" text-anchor="middle">12</text>
+
+
+  <!-- Outlier Data Section -->
+  <line x1="100" y1="410" x2="700" y2="410" stroke="#e2e8f0" stroke-width="3" stroke-dasharray="10, 10" />
+
+  <text x="400" y="460" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">外れ値（極端な値）を含む場合</text>
+
+  <rect x="160" y="500" width="480" height="80" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="4" />
+  <text x="400" y="552" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, monospace, sans-serif" font-size="36" fill="#334155" text-anchor="middle">[ 10, 11, 12, 13, <tspan fill="#ea580c" font-weight="bold">100</tspan> ]</text>
+
+  <!-- Number line (auxiliary) -->
+  <line x1="180" y1="610" x2="620" y2="610" stroke="#e2e8f0" stroke-width="4" stroke-linecap="round" />
+  <!-- Dots grouped at the left (180 to 216), outlier at 620 -->
+  <circle cx="180" cy="610" r="8" fill="#64748b" opacity="0.9" />
+  <circle cx="192" cy="610" r="8" fill="#64748b" opacity="0.9" />
+  <circle cx="204" cy="610" r="8" fill="#2563eb" opacity="0.9" />
+  <circle cx="216" cy="610" r="8" fill="#64748b" opacity="0.9" />
+  <circle cx="620" cy="610" r="12" fill="#ea580c" />
+
+
+  <!-- Summary Cards Outlier -->
+  <rect x="120" y="690" width="260" height="110" rx="8" fill="#ffffff" stroke="#ea580c" stroke-width="4" />
+  <text x="250" y="735" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">平均値</text>
+  <text x="250" y="780" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="40" font-weight="bold" fill="#ea580c" text-anchor="middle">29.2</text>
+
+  <!-- Annotation for Mean change -->
+  <text x="250" y="675" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="24" font-weight="bold" fill="#ea580c" text-anchor="middle">大きく変化！</text>
+
+
+  <rect x="420" y="690" width="260" height="110" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="4" />
+  <text x="550" y="735" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">中央値</text>
+  <text x="550" y="780" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="40" font-weight="bold" fill="#334155" text-anchor="middle">12</text>
+  
+  <!-- Annotation for Median change -->
+  <text x="550" y="675" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="24" font-weight="bold" fill="#2563eb" text-anchor="middle">変化なし</text>
+
+
+  <!-- Conclusion Text -->
+  <text x="400" y="880" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="30" fill="#334155" text-anchor="middle">外れ値を含むと、平均値は極端な値に大きく引っ張られる</text>
+  <text x="400" y="940" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="30" font-weight="bold" fill="#2563eb" text-anchor="middle">中央値は外れ値の影響を受けにくい</text>
+
+</svg>

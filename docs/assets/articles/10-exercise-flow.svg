@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1420" viewBox="0 0 800 1420">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+  </defs>
+  <rect width="800" height="1420" fill="#ffffff" />
+
+  <text x="400" y="60" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">今回の総合演習の流れ</text>
+  <text x="400" y="110" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="26" fill="#64748b" text-anchor="middle">記事1〜9で学んだ手順を実践します</text>
+
+  <!-- Flow 1 -->
+  <rect x="200" y="160" width="400" height="100" rx="8" fill="#f8fafc" stroke="#2563eb" stroke-width="4" />
+  <text x="400" y="222" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">1. データ確認</text>
+
+  <line x1="400" y1="260" x2="400" y2="330" stroke="#2563eb" stroke-width="6" marker-end="url(#arrow)" />
+
+  <!-- Flow 2 -->
+  <rect x="200" y="340" width="400" height="100" rx="8" fill="#f8fafc" stroke="#2563eb" stroke-width="4" />
+  <text x="400" y="402" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">2. 前処理</text>
+
+  <line x1="400" y1="440" x2="400" y2="510" stroke="#2563eb" stroke-width="6" marker-end="url(#arrow)" />
+
+  <!-- Flow 3 -->
+  <rect x="200" y="520" width="400" height="100" rx="8" fill="#f8fafc" stroke="#2563eb" stroke-width="4" />
+  <text x="400" y="582" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">3. 統計量算出</text>
+
+  <line x1="400" y1="620" x2="400" y2="690" stroke="#2563eb" stroke-width="6" marker-end="url(#arrow)" />
+
+  <!-- Flow 4 -->
+  <rect x="200" y="700" width="400" height="100" rx="8" fill="#f8fafc" stroke="#2563eb" stroke-width="4" />
+  <text x="400" y="762" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">4. 可視化</text>
+
+  <line x1="400" y1="800" x2="400" y2="870" stroke="#2563eb" stroke-width="6" marker-end="url(#arrow)" />
+
+  <!-- Flow 5 -->
+  <rect x="200" y="880" width="400" height="100" rx="8" fill="#f8fafc" stroke="#2563eb" stroke-width="4" />
+  <text x="400" y="942" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="32" font-weight="bold" fill="#334155" text-anchor="middle">5. 考察</text>
+
+  <!-- Supplementary Context to distinguish from Article 2 -->
+  <rect x="100" y="1080" width="600" height="180" rx="8" fill="#eff6ff" stroke="#bfdbfe" stroke-width="2" />
+  <text x="400" y="1140" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">一般的な分析の6ステップ</text>
+  <text x="400" y="1185" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">（記事2）とは異なり、今回はすでに</text>
+  <text x="400" y="1230" font-family="'Noto Sans JP', 'Yu Gothic', Meiryo, sans-serif" font-size="28" fill="#334155" text-anchor="middle">用意されたCSVを使って実践します。</text>
+
+</svg>

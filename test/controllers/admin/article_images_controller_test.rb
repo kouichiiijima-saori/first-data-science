@@ -17,11 +17,14 @@ class Admin::ArticleImagesControllerTest < ActionDispatch::IntegrationTest
     json = response.parsed_body
     blob = ActiveStorage::Blob.order(:created_at).last
     assert_equal true, json["success"]
-    assert_match %r{/rails/active_storage/blobs/}, json["url"]
+    assert_match %r{\A/rails/active_storage/blobs/}, json["url"]
+    assert_no_match %r{\Ahttps?://}, json["url"]
     assert_equal blob.signed_id, json["signed_id"]
     assert_equal "sample.jpg", json["filename"]
     assert_equal "image/jpeg", json["content_type"]
     assert_equal [ json["url"] ], json.dig("data", "files")
+    assert_equal "", json.dig("data", "baseurl")
+    assert_no_match %r{\Ahttps?://}, json.dig("data", "files").first
     assert_equal [ true ], json.dig("data", "isImages")
     assert_equal [ blob.signed_id ], json.dig("data", "signed_ids")
   end

@@ -44,6 +44,15 @@ class PublicArticlesTest < ApplicationSystemTestCase
     end
   end
 
+
+  test "public pages do not show admin login link" do
+    visit articles_url
+    assert_no_link "管理者ログイン", href: admin_login_path
+
+    visit article_url(@published_article)
+    assert_no_link "管理者ログイン", href: admin_login_path
+  end
+
   test "showing a published article" do
     visit article_url(@published_article)
     assert_selector "h1", text: @published_article.title

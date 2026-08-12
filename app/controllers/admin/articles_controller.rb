@@ -1,8 +1,8 @@
 class Admin::ArticlesController < Admin::BaseController
-  before_action :set_article, only: %i[edit update destroy]
+  before_action :set_article, only: %i[edit update destroy move_up move_down]
 
   def index
-    @articles = Article.includes(:tags).order(updated_at: :desc, id: :desc)
+    @articles = Article.includes(:tags).order(display_order: :asc, id: :asc)
   end
 
   def new
@@ -49,9 +49,46 @@ class Admin::ArticlesController < Admin::BaseController
     end
   end
 
+  def move_up
+    previous_article = Article.where("display_order < ? OR (display_order = ? AND id < ?)", @article.display_order, @article.display_order, @article.id)
+                              .order(display_order: :desc, id: :desc)
+                              .first
+
+    if previous_article
+      swap_display_order_with(previous_article)
+      redirect_to admin_articles_path, status: :see_other, notice: "表示順を上に移動しました"
+    else
+      redirect_to admin_articles_path, status: :see_other, alert: "これ以上上に移動できません"
+    end
+  end
+
+  def move_down
+    next_article = Article.where("display_order > ? OR (display_order = ? AND id > ?)", @article.display_order, @article.display_order, @article.id)
+                          .order(display_order: :asc, id: :asc)
+                          .first
+
+    if next_article
+      swap_display_order_with(next_article)
+      redirect_to admin_articles_path, status: :see_other, notice: "表示順を下に移動しました"
+    else
+      redirect_to admin_articles_path, status: :see_other, alert: "これ以上下に移動できません"
+    end
+  end
+
   private
     def set_article
       @article = Article.find(params[:id])
+    end
+
+    def swap_display_order_with(other_article)
+      Article.transaction do
+        current_order = @article.display_order
+        other_order = other_article.display_order
+        timestamp = Time.current
+
+        Article.where(id: @article.id).update_all(display_order: other_order, updated_at: timestamp)
+        Article.where(id: other_article.id).update_all(display_order: current_order, updated_at: timestamp)
+      end
     end
 
     def article_params

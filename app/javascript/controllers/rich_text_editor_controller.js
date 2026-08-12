@@ -220,6 +220,8 @@ export default class extends Controller {
     const document = new DOMParser().parseFromString(html || "", "text/html")
 
     document.body.querySelectorAll("img").forEach((image) => {
+      this.normalizeImageSource(image)
+
       const width = this.validImageDimension(image.getAttribute("width")) || this.validImageDimension(image.style.width)
       const height = this.validImageDimension(image.getAttribute("height")) || this.validImageDimension(image.style.height)
 
@@ -239,6 +241,22 @@ export default class extends Controller {
     })
 
     return document.body.innerHTML
+  }
+
+  normalizeImageSource(image) {
+    const src = image.getAttribute("src")?.trim() || ""
+
+    try {
+      const url = new URL(src, window.location.origin)
+      if (url.origin === window.location.origin &&
+          url.pathname.startsWith("/rails/active_storage/blobs/") &&
+          !url.search &&
+          !url.hash) {
+        image.setAttribute("src", url.pathname)
+      }
+    } catch (_) {
+      return
+    }
   }
 
   validImageDimension(value) {

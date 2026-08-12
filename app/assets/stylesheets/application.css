@@ -99,10 +99,6 @@ a:hover {
   font-size: 0.875rem;
 }
 
-.admin-login-link {
-  color: var(--text-muted);
-}
-
 /* Article List */
 .public-page-header {
   margin-bottom: 2rem;
@@ -161,7 +157,7 @@ a:hover {
 .article-card-thumbnail img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -333,6 +329,7 @@ a:hover {
 .markdown-body ol,
 .markdown-body dl,
 .markdown-body table,
+.rich-text-body pre,
 .markdown-body pre {
   margin-top: 0;
   margin-bottom: 1.5rem;
@@ -357,6 +354,7 @@ a:hover {
   padding-left: 2em;
 }
 
+.rich-text-body code,
 .markdown-body code {
   padding: 0.2em 0.4em;
   margin: 0;
@@ -366,6 +364,7 @@ a:hover {
   font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
 }
 
+.rich-text-body pre,
 .markdown-body pre {
   padding: 1rem;
   overflow: auto;
@@ -375,6 +374,7 @@ a:hover {
   border-radius: 6px;
 }
 
+.rich-text-body pre code,
 .markdown-body pre code {
   display: inline;
   max-width: auto;
