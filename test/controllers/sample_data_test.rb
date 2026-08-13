@@ -1,15 +1,15 @@
 require "test_helper"
 
 class SampleDataTest < ActionDispatch::IntegrationTest
-  test "sales data csv is publicly available and matches docs source" do
+  test "sales data csv is publicly available and matches public source" do
     get "/sample-data/sales_data.csv"
 
     assert_response :success
     assert_equal "text/csv", response.media_type
 
     public_body = response.body
-    docs_body = Rails.root.join("docs/sample-data/sales_data.csv").binread
-    assert_equal docs_body, public_body.b
+    source_body = Rails.root.join("public/sample-data/sales_data.csv").binread
+    assert_equal source_body, public_body.b
 
     lines = public_body.dup.force_encoding("UTF-8").lines.map(&:chomp)
     headers = lines.first.split(",")
